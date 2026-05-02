@@ -286,9 +286,43 @@ await fetch(`${API_URL}/provider/bookings/${bookingId}/complete`, {
 
 ---
 
-### 2. View Earnings (optional – use Django admin or API later)
+### 2. View Earnings
 
-After completion, a `ProviderEarnings` record is created with status `pending`. You can view it in Django admin or via a future API endpoint.
+After completion, a `ProviderEarnings` record is created with status `pending`. You can view your earnings via the following endpoints:
+
+#### Earnings Summary
+```http
+GET /api/provider/earnings/summary
+```
+
+✅ **Response**
+```json
+{ "pending": 112.8, "available": 0.0, "paid": 0.0, "total": 112.8 }
+```
+
+#### List Earnings
+```http
+GET /api/provider/earnings?status=pending
+```
+
+✅ **Response**
+```json
+{
+  "total": 1,
+  "earnings": [
+    {
+      "id": "earning_cuid",
+      "total_amount": 120.0,
+      "commission_amount": 7.2,
+      "net_amount": 112.8,
+      "status": "pending",
+      "paid_at": null,
+      "booking__id": "...",
+      "booking__service__name": "..."
+    }
+  ]
+}
+```
 
 ---
 
@@ -302,3 +336,5 @@ After completion, a `ProviderEarnings` record is created with status `pending`. 
 | List exceptions                    | `GET /provider/availability/exceptions`         | Yes            |
 | Delete exception                   | `DELETE /provider/availability/exceptions/{id}` | Yes            |
 | Complete booking (record earnings) | `POST /provider/bookings/{id}/complete`         | Yes (provider) |
+| View earnings summary              | `GET /api/provider/earnings/summary`            | Yes (provider) |
+| List earnings                      | `GET /api/provider/earnings`                    | Yes (provider) |

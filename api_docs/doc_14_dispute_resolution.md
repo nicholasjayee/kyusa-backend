@@ -173,7 +173,7 @@ Authorization: Bearer <token>
 ## 5. Admin Resolves a Dispute
 
 ```http
-POST /_/admin/disputes/{dispute_id}/resolve
+POST /api/admin/disputes/{dispute_id}/resolve
 Authorization: Bearer <admin_token>
 Content-Type: application/json
 ```

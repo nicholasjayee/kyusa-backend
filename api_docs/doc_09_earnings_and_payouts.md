@@ -191,7 +191,7 @@ Content-Type: application/json
 ### Release Pending Earnings (make available for payout)
 
 ```http
-POST /_/admin/earnings/{earning_id}/release
+POST /api/admin/earnings/{earning_id}/release
 ```
 
 ✅ Response:
@@ -203,7 +203,7 @@ POST /_/admin/earnings/{earning_id}/release
 ### Approve / Reject a Provider
 
 ```http
-POST /_/admin/providers/{provider_id}/approval
+POST /api/admin/providers/{provider_id}/approval
 ```
 
 ```json
@@ -224,7 +224,7 @@ POST /_/admin/providers/{provider_id}/approval
 ### List Providers (filter by status)
 
 ```http
-GET /_/admin/providers?status=pending
+GET /api/admin/providers?status=pending
 ```
 
 ✅ Response: list of provider profiles.
@@ -275,10 +275,10 @@ GET /services/{service_id}/reviews
 | Provider | `GET /provider/bookings`              | List incoming bookings            |
 | Provider | `POST /provider/bookings/{id}/accept` | Accept a booking                  |
 | Provider | `POST /provider/bookings/{id}/reject` | Reject a booking                  |
-| Admin    | `POST /_/admin/departments`           | Create department                 |
-| Admin    | `POST /_/admin/service-categories`    | Create service category           |
-| Admin    | `GET /_/admin/departments`            | List departments                  |
-| Admin    | `GET /_/admin/service-categories`     | List categories                   |
+| Admin    | `POST /api/admin/departments`         | Create department                 |
+| Admin    | `POST /api/admin/service-categories`  | Create service category           |
+| Admin    | `GET /api/admin/departments`          | List departments                  |
+| Admin    | `GET /api/admin/service-categories`   | List categories                   |
 
 ---
 

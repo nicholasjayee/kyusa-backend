@@ -58,7 +58,7 @@ If no public settings exist, returns `{}`.
 ## 2. List All Settings (Admin only)
 
 ```http
-GET /_/admin/settings
+GET /api/admin/settings
 Authorization: Bearer <admin_token>
 ```
 
@@ -85,7 +85,7 @@ Returns all settings (including non‑public) with full metadata.
 ## 3. Create or Update a Setting (Admin only)
 
 ```http
-POST /_/admin/settings/{key}
+POST /api/admin/settings/{key}
 Authorization: Bearer <admin_token>
 Content-Type: application/json
 ```

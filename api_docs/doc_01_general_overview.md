@@ -163,9 +163,32 @@ await fetch(`${API_URL}/provider/onboarding`, {
 
 ---
 
-### 1.4 Admin approval (via Django admin – no API yet)
+### 1.4 Admin approval
 
-Admin must manually approve the profile in Django admin. After approval, the provider can create services.
+Admin can approve the profile via the API or Django Admin.
+
+```http
+POST /api/admin/providers/{provider_id}/approval
+Content-Type: application/json
+```
+
+```json
+{
+  "approved": true,
+  "notes": "Verified business license"
+}
+```
+
+✅ Response (200)
+
+```json
+{
+  "id": "provider_id",
+  "business_name": "Clean Masters",
+  "is_approved": true,
+  "message": "Provider approved"
+}
+```
 
 ---
 
@@ -354,7 +377,7 @@ Same login endpoint. Admin must have `is_superuser=True` (created via `createsup
 ### 3.2 Create a department
 
 ```http
-POST /_/admin/departments
+POST /api/admin/departments
 ```
 
 ```json
@@ -379,7 +402,7 @@ POST /_/admin/departments
 ### 3.3 Create a service category
 
 ```http
-POST /_/admin/service-categories
+POST /api/admin/service-categories
 ```
 
 ```json
@@ -404,7 +427,28 @@ POST /_/admin/service-categories
 
 ### 3.4 Approve provider profiles
 
-Currently only via Django admin UI. We will provide an API endpoint later.
+```http
+POST /api/admin/providers/{provider_id}/approval
+Content-Type: application/json
+```
+
+```json
+{
+  "approved": true,
+  "notes": "Approved after verification"
+}
+```
+
+✅ Response
+
+```json
+{
+  "id": "provider_id",
+  "business_name": "Clean Masters",
+  "is_approved": true,
+  "message": "Provider approved"
+}
+```
 
 ---
 

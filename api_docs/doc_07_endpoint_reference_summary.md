@@ -80,12 +80,12 @@ All authenticated endpoints require `Authorization: Bearer <access_token>` and `
 
 | Method      | Endpoint                                       | Description                       |
 | ----------- | ---------------------------------------------- | --------------------------------- |
-| POST        | `/_/admin/departments`                         | Create a department               |
-| GET         | `/_/admin/departments`                         | List all departments              |
-| POST        | `/_/admin/service-categories`                  | Create a service category         |
-| GET         | `/_/admin/service-categories`                  | List all categories               |
-| GET         | `/_/admin/providers?status=pending`            | List providers (filter by status) |
-| POST        | `/_/admin/providers/{id}/approval`             | Approve or reject a provider      |
+| POST        | `/api/admin/departments`                       | Create a department               |
+| GET         | `/api/admin/departments`                       | List all departments              |
+| POST        | `/api/admin/service-categories`                | Create a service category         |
+| GET         | `/api/admin/service-categories`                | List all categories               |
+| GET         | `/api/admin/providers?status=pending`          | List providers (filter by status) |
+| POST        | `/api/admin/providers/{id}/approval`           | Approve or reject a provider      |
 | (same auth) | `/auth/login`, `/auth/refresh`, `/auth/logout` | Same as others                    |
 
 ---

@@ -383,7 +383,7 @@ Same login endpoint. Use the superuser credentials created in Django.
 ## 2. Create a department
 
 ```http
-POST /_/admin/departments
+POST /api/admin/departments
 ```
 
 ```json
@@ -404,7 +404,7 @@ POST /_/admin/departments
 ## 3. Create a service category
 
 ```http
-POST /_/admin/service-categories
+POST /api/admin/service-categories
 ```
 
 ```json
@@ -429,13 +429,34 @@ POST /_/admin/service-categories
 
 ## 4. Approve provider profiles
 
-Currently only via Django admin UI (`/_/admin/core/providerprofile/`). An API endpoint will be added later.
+```http
+POST /api/admin/providers/{provider_id}/approval
+Content-Type: application/json
+```
+
+```json
+{
+  "approved": true,
+  "notes": "Verified business"
+}
+```
+
+✅ **Response**
+
+```json
+{
+  "id": "provider_id",
+  "business_name": "Clean Masters",
+  "is_approved": true,
+  "message": "Provider approved"
+}
+```
 
 ## 5. List all departments / categories
 
 ```http
-GET /_/admin/departments
-GET /_/admin/service-categories
+GET /api/admin/departments
+GET /api/admin/service-categories
 ```
 
 ✅ **Response** – array of objects.

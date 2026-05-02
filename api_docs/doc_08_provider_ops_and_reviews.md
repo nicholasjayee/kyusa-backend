@@ -191,7 +191,7 @@ GET /services/{service_id}/reviews
 ### List Providers (filter by status)
 
 ```http
-GET /_/admin/providers?status=pending
+GET /api/admin/providers?status=pending
 Authorization: Bearer <admin_token>
 ```
 
@@ -220,7 +220,7 @@ Authorization: Bearer <admin_token>
 ### Approve / Reject a Provider
 
 ```http
-POST /_/admin/providers/{provider_id}/approval
+POST /api/admin/providers/{provider_id}/approval
 Authorization: Bearer <admin_token>
 Content-Type: application/json
 ```
