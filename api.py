@@ -235,13 +235,18 @@ async def get_current_user(access_token: Optional[str] = Depends(oauth2_scheme))
 
 from django.core.asgi import get_asgi_application
 
+from fastapi.staticfiles import StaticFiles
+
 # FastAPI app
 app = FastAPI(title="Kyusa API", version="1.0")
 
+# Mount Static Files (Served directly by FastAPI for efficiency)
+if os.path.exists("staticfiles"):
+    app.mount("/static", StaticFiles(directory="staticfiles"), name="static")
+
 # Mount Django
 django_app = get_asgi_application()
-app.mount("/admin", django_app)
-app.mount("/static", django_app)
+app.mount("/_/admin", django_app)
 
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:8000").split(",")
 
