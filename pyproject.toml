@@ -26,4 +26,5 @@ dependencies = [
     "pydantic[email]>=2.13.3",
     "asgiref>=3.11.1",
     "django-anymail>=15.0",
+    "pillow>=12.2.0",
 ]
