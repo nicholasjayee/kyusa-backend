@@ -19,7 +19,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 ## Base URL
 

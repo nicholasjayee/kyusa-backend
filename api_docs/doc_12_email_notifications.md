@@ -1,6 +1,7 @@
 # Kyusa API – Email Notifications
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Event-Driven Alerts** → Emails are dispatched automatically when critical lifecycle events occur in the system.
 2. **Zero-Frontend Effort** → All logic is contained within the backend; no API calls or React implementation needed for delivery.
 3. **Stakeholder Updates** → Ensures Providers know about new requests and Clients stay informed on booking status.
@@ -16,7 +18,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 ## Configuration (Backend)
 

@@ -1,6 +1,7 @@
 # Kyusa API – Comprehensive Role-Based Flows
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Unified Authentication** → Access token (Bearer) and httpOnly Refresh token for all roles.
 2. **Client Journey** → Signup → Onboarding (Profile) → Browse Services → Create Booking.
 3. **Provider Journey** → Signup → Onboarding → Admin Approval (Required) → Create Services → Manage Bookings.
@@ -16,7 +18,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 # Kyusa API – Client Documentation
 

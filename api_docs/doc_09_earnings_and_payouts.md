@@ -1,6 +1,7 @@
 # Kyusa API – Earnings & Payout Management
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Financial Transparency** → Providers can track their revenue with real-time summaries of pending vs. available funds.
 2. **Earning Lifecycle** → Booking Completed → `Pending` Earning → `Available` (after release) → `Paid` (after payout).
 3. **Payout Process** → Providers initiate payout requests with destination details (e.g., bank info).
@@ -16,7 +18,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 # Kyusa API – Complete Feature Documentation
 
@@ -273,10 +275,10 @@ GET /services/{service_id}/reviews
 | Provider | `GET /provider/bookings`              | List incoming bookings            |
 | Provider | `POST /provider/bookings/{id}/accept` | Accept a booking                  |
 | Provider | `POST /provider/bookings/{id}/reject` | Reject a booking                  |
-| Admin    | `POST /_/admin/departments`             | Create department                 |
-| Admin    | `POST /_/admin/service-categories`      | Create service category           |
-| Admin    | `GET /_/admin/departments`              | List departments                  |
-| Admin    | `GET /_/admin/service-categories`       | List categories                   |
+| Admin    | `POST /_/admin/departments`           | Create department                 |
+| Admin    | `POST /_/admin/service-categories`    | Create service category           |
+| Admin    | `GET /_/admin/departments`            | List departments                  |
+| Admin    | `GET /_/admin/service-categories`     | List categories                   |
 
 ---
 

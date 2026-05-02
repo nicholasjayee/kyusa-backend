@@ -1,6 +1,7 @@
 # Kyusa API – Provider Operations & Reviews
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Schedule Management** → Comprehensive endpoints for providers to maintain accurate availability windows.
 2. **Post-Service Workflow** → Standardized process for marking bookings as complete and triggering earnings records.
 3. **Client-Provider Feedback** → Mechanism for clients to rate their experience, directly influencing provider visibility.
@@ -16,7 +18,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 # Kyusa API – Documentation
 

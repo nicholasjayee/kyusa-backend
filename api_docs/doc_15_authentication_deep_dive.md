@@ -1,6 +1,7 @@
 # Kyusa API – Authentication Deep Dive
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Token-Based Security** → Dual-token system with short-lived access tokens and secure, rotation-based refresh tokens.
 2. **Cookie Isolation** → Refresh tokens are stored in `httpOnly` cookies, shielding them from XSS and JavaScript access.
 3. **Form-Data Requirements** → Login endpoint follows OAuth2 standards, requiring `x-www-form-urlencoded` content type.
@@ -16,7 +18,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 # Kyusa API – Authentication Documentation for Frontend
 

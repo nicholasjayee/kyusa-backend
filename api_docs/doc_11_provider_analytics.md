@@ -1,6 +1,7 @@
 # Kyusa API – Provider Analytics
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Business Intelligence** → Providers gain insights into their performance through a consolidated dashboard endpoint.
 2. **Revenue Tracking** → Clear visibility into gross revenue and net earnings (pending/available/paid).
 3. **Historical Trends** → Monthly data aggregation allows providers to track growth over the previous 6 months.
@@ -16,7 +18,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 ## Base URL
 

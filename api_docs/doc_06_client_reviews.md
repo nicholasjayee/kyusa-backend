@@ -1,6 +1,7 @@
 # Kyusa API – Client Reviews
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,15 +9,16 @@
 ---
 
 ## Overview
+
 1. **Quality Feedback** → Clients submit a star rating (1-5) and optional text comment after a service is completed.
 2. **Reputation Management** → Provider profile metrics (`rating_avg`, `total_reviews`) are updated in real-time.
 3. **Public Transparency** → Service reviews are publicly accessible, helping new clients make informed decisions.
-4. **Eligibility Check** → Only the specific client associated with a *Completed* booking can submit a review.
+4. **Eligibility Check** → Only the specific client associated with a _Completed_ booking can submit a review.
 5. **Uniqueness** → System enforces a single review per booking to ensure data integrity.
 
 ---
 
-# Original Documentation
+# Documentation
 
 ## Base URL
 

@@ -1,6 +1,7 @@
 # Kyusa API – System Settings
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Global Configuration** → A centralized store for system-wide constants that can be changed without code deployments.
 2. **Publicly Exposed Constants** → Essential values like cancellation policies or default fees are available to the frontend.
 3. **Admin Authority** → Superusers have full control to list, create, or modify any system setting.
@@ -16,7 +18,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 ## Base URL
 

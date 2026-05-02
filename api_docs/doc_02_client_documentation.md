@@ -1,6 +1,7 @@
 # Kyusa API – Client Documentation
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Account Creation** → Signup as a `client` to start using the platform.
 2. **Authentication** → Login to receive an `access_token`; `refresh_token` is handled via cookies.
 3. **Mandatory Onboarding** → Complete the client profile (phone number and preferences) before booking.
@@ -17,7 +19,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 ## Base URL
 

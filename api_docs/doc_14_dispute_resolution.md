@@ -1,6 +1,7 @@
 # Kyusa API – Dispute Resolution
 
 > **Environment Information**
+>
 > - **Base URL (Local):** `http://localhost:8000`
 > - **Base URL (Production):** `https://kyusa-backend.onrender.com`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
@@ -8,6 +9,7 @@
 ---
 
 ## Overview
+
 1. **Formal Dispute Opening** → Clients can initiate a dispute for any booking that didn't meet expectations.
 2. **Supportive Evidence** → A dedicated mechanism for uploading documents, images, and notes from both parties.
 3. **Lifecycle Transparency** → Disputes move through defined stages: `open` → `under_review` → `resolved`.
@@ -16,7 +18,7 @@
 
 ---
 
-# Original Documentation
+# Documentation
 
 ## Base URL
 
