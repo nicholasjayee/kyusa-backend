@@ -1,142 +1,87 @@
 # Kyusa API – Dispute Resolution
 
 > **Environment Information**
->
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
-> - **Django Admin:** `{{BASE_URL}}/_/admin`
+> - **Base URL:** `{{BASE_URL}}/api`
+> - **Pro Tip:** Encourage users to upload clear photo evidence to speed up admin resolution.
 
 ---
 
 ## Overview
 
-1. **Formal Dispute Opening** → Clients can initiate a dispute for any booking that didn't meet expectations.
-2. **Supportive Evidence** → A dedicated mechanism for uploading documents, images, and notes from both parties.
-3. **Lifecycle Transparency** → Disputes move through defined stages: `open` → `under_review` → `resolved`.
-4. **Admin Neutrality** → Admins act as arbitrators, reviewing all evidence before making a final decision.
-5. **Financial Finality** → Resolution notes indicate whether the provider keeps the payment or a refund is issued.
+When a service conflict occurs, clients can open a dispute. This freezes the booking lifecycle and initiates an admin review process.
 
 ---
 
-# Documentation
+## 1. Open a Dispute (Client)
 
-## Base URL
+Clients can initiate a dispute for a specific booking.
 
-```
-{{BASE_URL}}/api
-```
-
-## Authentication
-
-- Creating a dispute, uploading evidence, and viewing own disputes require a valid user token (client or provider).
-- Admin endpoints require a superuser token.
-
----
-
-## 1. Client Opens a Dispute
-
-```http
-POST /disputes
-Authorization: Bearer <client_token>
-Content-Type: application/json
-```
-
-**Body**
-
+- **Endpoint:** `POST {{BASE_URL}}/api/disputes`
+- **Role:** `client`
+- **Body Schema (JSON):**
 ```json
 {
-  "reason": "Service not delivered as described",
-  "booking_id": "booking_cuid"
+  "reason": "The provider did not show up at the scheduled time.",
+  "booking_id": "book_12345"
 }
 ```
 
-✅ **Response (200)**
-
+### ✅ Response (200 OK)
 ```json
 {
-  "id": "dispute_cuid",
-  "booking_id": "booking_cuid",
+  "id": "disp_777",
+  "booking_id": "book_12345",
   "status": "open",
   "message": "Dispute opened. Admin will review shortly."
 }
 ```
 
-❌ **Errors**
-
-- `403` – only clients can open disputes.
-- `404` – booking not found.
-- `400` – a dispute already exists for this booking.
-
 ---
 
-## 2. Upload Evidence (Client or Provider)
+## 2. Upload Evidence (Client/Provider)
 
-```http
-POST /disputes/{dispute_id}/evidence
-Authorization: Bearer <token>
-Content-Type: multipart/form-data
-```
+Both parties can upload files (images, PDFs) as evidence.
 
-**Form data**
+- **Endpoint:** `POST {{BASE_URL}}/api/disputes/{dispute_id}/evidence`
+- **Method:** `POST`
+- **Headers:** `Content-Type: multipart/form-data`
+- **Form Data:**
+    - `file`: The document/image.
+    - `description`: (Optional) Brief text explanation.
 
-- `file` – the file to upload (image, PDF, etc.)
-- `description` – optional text description
-
-✅ **Response (200)**
-
+### ✅ Response (200 OK)
 ```json
 {
-  "id": "evidence_cuid",
+  "id": "evid_999",
   "message": "Evidence uploaded"
 }
 ```
 
-❌ **Errors**
-
-- `403` – not authorized (only client or provider involved in the dispute).
-- `404` – dispute not found.
-
-**React example**
-
-```jsx
-const formData = new FormData();
-formData.append("file", selectedFile);
-formData.append("description", "Screenshot of conversation");
-await fetch(`${API_URL}/disputes/${disputeId}/evidence`, {
-  method: "POST",
-  headers: { Authorization: `Bearer ${token}` },
-  body: formData,
-  credentials: "include",
-});
-```
-
 ---
 
-## 3. List Disputes (filtered by role)
+## 3. List Disputes
 
-```http
-GET /disputes?status=open
-Authorization: Bearer <token>
-```
+Retrieve disputes based on user role.
 
-**Query parameter** `status` – optional (`open`, `under_review`, `resolved_closed`, `resolved_refund`).
+- **Endpoint:** `GET {{BASE_URL}}/api/disputes`
+- **Query Params:** `status` (Optional: `open`, `under_review`, `resolved_closed`, `resolved_refund`)
 
-- **Admin** – sees all disputes.
-- **Provider** – sees disputes related to their bookings.
-- **Client** – sees only their own disputes.
+### Visibility Rules
+- **Admin:** Sees all disputes in the system.
+- **Provider:** Sees disputes related to their bookings.
+- **Client:** Sees disputes they have raised.
 
-✅ **Response (200)**
-
+### ✅ Response (200 OK)
 ```json
 {
   "count": 1,
   "disputes": [
     {
-      "id": "dispute_cuid",
-      "booking_id": "booking_cuid",
-      "reason": "Service not delivered",
+      "id": "disp_777",
+      "booking_id": "book_12345",
+      "reason": "...",
       "status": "open",
-      "created_at": "2026-05-01T12:00:00Z",
+      "created_at": "2026-05-25T10:00:00Z",
       "resolution_notes": null
     }
   ]
@@ -145,23 +90,21 @@ Authorization: Bearer <token>
 
 ---
 
-## 4. Get Evidence for a Dispute
+## 4. View Evidence
 
-```http
-GET /disputes/{dispute_id}/evidence
-Authorization: Bearer <token>
-```
+Get the list of all files uploaded for a specific dispute.
 
-✅ **Response (200)**
+- **Endpoint:** `GET {{BASE_URL}}/api/disputes/{dispute_id}/evidence`
 
+### ✅ Response (200 OK)
 ```json
 {
   "evidence": [
     {
-      "id": "evidence_cuid",
-      "description": "Screenshot",
-      "file": "/media/dispute_evidence/...",
-      "uploaded_at": "2026-05-01T12:05:00Z",
+      "id": "evid_999",
+      "description": "Screenshot of chat",
+      "file": "/media/dispute_evidence/file.jpg",
+      "uploaded_at": "2026-05-25T10:05:00Z",
       "uploaded_by__email": "client@example.com"
     }
   ]
@@ -170,45 +113,36 @@ Authorization: Bearer <token>
 
 ---
 
-## 5. Admin Resolves a Dispute
+## 5. Resolve Dispute (Admin Only)
 
-```http
-POST /api/admin/disputes/{dispute_id}/resolve
-Authorization: Bearer <admin_token>
-Content-Type: application/json
-```
+Admin makes a final decision on the dispute.
 
-**Body**
-
+- **Endpoint:** `POST {{BASE_URL}}/api/admin/disputes/{dispute_id}/resolve`
+- **Role:** `admin`
+- **Body Schema (JSON):**
 ```json
 {
-  "status": "resolved_closed",
-  "resolution_notes": "No issue found, booking stands"
+  "status": "resolved_refund",
+  "resolution_notes": "Provider confirmed no-show. Full refund issued to client."
 }
 ```
 
-- `status` can be `resolved_closed` (provider keeps payment) or `resolved_refund` (client refunded).
-
-✅ **Response (200)**
-
+### ✅ Response (200 OK)
 ```json
 {
-  "id": "dispute_cuid",
-  "status": "resolved_closed",
-  "message": "Dispute resolved as resolved_closed"
+  "id": "disp_777",
+  "status": "resolved_refund",
+  "message": "Dispute resolved as resolved_refund"
 }
 ```
-
-❌ **Errors**
-
-- `404` – dispute not found.
-- `400` – dispute already resolved.
 
 ---
 
-## Flow Summary
+## Error Specifications
 
-1. **Client** opens a dispute for a completed/accepted booking.
-2. **Client or Provider** uploads evidence (files + description).
-3. **Admin** reviews dispute and resolves (closes with no refund or issues refund).
-4. (Future) Refund triggers payment reversal.
+| Status | Error Detail | Scenario |
+| :--- | :--- | :--- |
+| 400 | `A dispute already exists for this booking` | Attempting to open multiple disputes for one booking. |
+| 403 | `Only clients can open disputes` | Provider trying to initiate a dispute. |
+| 403 | `Not authorized to upload evidence` | User not involved in the dispute trying to upload. |
+| 404 | `Dispute not found` | Accessing an invalid ID. |

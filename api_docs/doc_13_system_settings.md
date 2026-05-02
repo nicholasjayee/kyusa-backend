@@ -1,144 +1,113 @@
 # Kyusa API – System Settings
 
 > **Environment Information**
->
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
-> - **Django Admin:** `{{BASE_URL}}/_/admin`
+> - **Base URL:** `{{BASE_URL}}/api`
+> - **Pro Tip:** Use public settings to dynamically configure UI constants like "Cancellation Policy" or "Platform Fees" without redeploying frontend code.
 
 ---
 
 ## Overview
 
-1. **Global Configuration** → A centralized store for system-wide constants that can be changed without code deployments.
-2. **Publicly Exposed Constants** → Essential values like cancellation policies or default fees are available to the frontend.
-3. **Admin Authority** → Superusers have full control to list, create, or modify any system setting.
-4. **Flexible Value Types** → Supports diverse data formats including standard primitives and complex JSON objects.
-5. **Real-time Updates** → Changes to settings are immediately reflected across all relevant business logic.
-
----
-
-# Documentation
-
-## Base URL
-
-```
-{{BASE_URL}}/api
-```
-
-## Authentication
-
-- Public settings: no authentication required.
-- Admin endpoints: require superuser `access_token`.
+System settings provide a flexible way to manage global constants. Settings can be public (accessible by everyone) or private (Admin only).
 
 ---
 
 ## 1. Get Public Settings
 
-```http
-GET /settings/public
-```
+Retrieve all configuration values marked as `is_public`.
 
-Returns all settings marked `is_public=True`. Settings can be of type `string`, `int`, `bool`, or `json`.
+- **Endpoint:** `GET {{BASE_URL}}/api/settings/public`
+- **Auth:** Not Required
 
-✅ **Response (200)**
-
+### ✅ Response (200 OK)
 ```json
 {
-  "default_commission_percentage": 12.5,
-  "cancellation_policy_hours": 24,
-  "some_json_setting": { "key": "value" }
+  "platform_name": "Kyusa",
+  "default_commission_pct": 10,
+  "support_email": "support@kyusa.com",
+  "maintenance_mode": false
 }
 ```
 
-If no public settings exist, returns `{}`.
-
 ---
 
-## 2. List All Settings (Admin only)
+## 2. List All Settings (Admin Only)
 
-```http
-GET /api/admin/settings
-Authorization: Bearer <admin_token>
-```
+Fetch the full list of settings with metadata.
 
-Returns all settings (including non‑public) with full metadata.
+- **Endpoint:** `GET {{BASE_URL}}/api/admin/settings`
+- **Role:** `admin`
 
-✅ **Response (200)**
-
+### ✅ Response (200 OK)
 ```json
 [
   {
-    "id": "cuid...",
-    "key": "default_commission_percentage",
-    "value": "12.5",
-    "value_type": "float",
-    "description": "Global commission",
-    "is_public": true,
-    "updated_at": "2026-05-01T12:00:00Z"
+    "id": "set_1",
+    "key": "platform_name",
+    "value": "Kyusa",
+    "value_type": "string",
+    "description": "The name of the platform",
+    "is_public": true
+  },
+  {
+    "id": "set_2",
+    "key": "internal_api_key",
+    "value": "super-secret",
+    "value_type": "string",
+    "description": "Sensitive internal key",
+    "is_public": false
   }
 ]
 ```
 
 ---
 
-## 3. Create or Update a Setting (Admin only)
+## 3. Update/Create Setting (Admin Only)
 
-```http
-POST /api/admin/settings/{key}
-Authorization: Bearer <admin_token>
-Content-Type: application/json
-```
+Modify an existing setting or create a new one.
 
-**Path parameter:** `key` – unique identifier for the setting.
-
-**Body**
-
+- **Endpoint:** `POST {{BASE_URL}}/api/admin/settings/{key}`
+- **Role:** `admin`
+- **Body Schema (JSON):**
 ```json
 {
-  "value": 12.5,
-  "value_type": "float",
-  "description": "Global commission percentage",
+  "value": "Kyusa Pro",
+  "value_type": "string",
+  "description": "Updated platform name",
   "is_public": true
 }
 ```
 
-- `value_type` can be `string`, `int`, `bool`, `json`, `float`.
-- `is_public` – if `true`, setting will appear in the public endpoint.
+### Type Support
+The `value_type` field ensures correct casting in the backend:
+- `string`: Raw text.
+- `int`: Parsed as integer.
+- `bool`: Parsed as boolean (`true`, `false`).
+- `json`: Parsed as a JSON object.
 
-✅ **Response (200)**
-
+### ✅ Response (200 OK)
 ```json
 {
-  "key": "default_commission_percentage",
+  "key": "platform_name",
   "message": "Setting updated"
 }
 ```
 
-❌ **Errors**
+---
 
-- `400` – invalid value for the specified type.
+## Error Specifications
+
+| Status | Error Detail | Scenario |
+| :--- | :--- | :--- |
+| 400 | `(Detailed exception)` | Invalid value for the specified `value_type`. |
+| 403 | `Insufficient permissions` | Non-admin attempting to access admin settings. |
 
 ---
 
-## How to Use Settings in Business Logic
+## Technical Usage (Python/Backend)
 
-Example: fetch a setting in any endpoint:
-
+Developers can use the `get_setting` helper:
 ```python
-default_commission = await get_setting('default_commission_percentage', 10.0)
+val = await get_setting('key', default='some_default')
 ```
-
-The `get_setting` helper already handles type conversion.
-
----
-
-## React Example (Public Settings)
-
-```jsx
-const fetchPublicSettings = async () => {
-  const res = await fetch(`${API_URL}/settings/public`);
-  const settings = await res.json();
-  console.log(settings.default_commission_percentage);
-};
-```
+This automatically handles type conversion based on the stored `value_type`.

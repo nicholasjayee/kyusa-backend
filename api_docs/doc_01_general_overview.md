@@ -2,36 +2,28 @@
 
 > **Environment Information**
 >
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Base URL (Local):** `http://localhost:8000/api`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com/api`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
 
 ---
 
-## Overview
+## Core Architecture
 
-1. **User Authentication** → Signup/Login to obtain an `access_token` and an `httpOnly` refresh token cookie.
-2. **Onboarding & Profiles** → Create a profile as a `client` or `provider`.
-3. **Provider Approval** → Providers require manual admin approval before they can offer services.
-4. **Service Management** → Approved providers create and manage services within defined categories.
-5. **Booking Lifecycle** → Client initiates a booking → Provider accepts or rejects → Service delivery → Completion.
-6. **Admin Controls** → Admins manage departments, service categories, and approve provider profiles.
+1.  **User Authentication** → Signup/Login to obtain an `access_token` and an `httpOnly` refresh token cookie.
+2.  **Onboarding & Profiles** → Create a profile as a `client` or `provider`.
+3.  **Provider Approval** → Providers require manual admin approval before they can offer services.
+4.  **Service Management** → Approved providers create and manage services within defined categories.
+5.  **Booking Lifecycle** → Client initiates a booking → Provider accepts or rejects → Service delivery → Completion.
+6.  **Admin Controls** → Admins manage departments, service categories, and approve provider profiles.
 
 ---
 
-# Documentation
+## Authentication & Headers
 
-## Base URL
-
-```
-{{BASE_URL}}/api
-```
-
-## Authentication
-
-- **Access token** – send in `Authorization: Bearer <token>`
-- **Refresh token** – automatically stored in **httpOnly cookie** (no JS access)
-- All requests that need auth must include `credentials: 'include'`
+-   **Access Token:** Send in `Authorization: Bearer <access_token>` header.
+-   **Refresh Token:** Automatically stored in an **httpOnly cookie**. No JavaScript access.
+-   **Pro Tip:** All requests involving authentication (login, logout, refresh, or any protected route) **MUST** include `withCredentials: true` (in Axios/Fetch) to ensure the refresh token cookie is sent and received.
 
 ---
 
@@ -40,41 +32,33 @@
 ### 1.1 Sign up as provider
 
 ```http
-POST /auth/signup
+POST {{BASE_URL}}/api/auth/signup
 Content-Type: application/json
 ```
 
+**Request Body:**
 ```json
 {
   "email": "provider@example.com",
   "username": "provider1",
-  "password": "secret",
+  "password": "strong-password",
   "first_name": "John",
   "last_name": "Doe",
   "role": "provider"
 }
 ```
 
-✅ Response (201)
-
+**Success Response (200):**
 ```json
 {
-  "id": "cuid123...",
+  "id": "uuid-string",
   "email": "provider@example.com",
+  "username": "provider1",
+  "first_name": "John",
+  "last_name": "Doe",
   "role": "provider",
   "is_active": true
 }
-```
-
-**React example**
-
-```jsx
-const res = await fetch(`${API_URL}/auth/signup`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password, role: 'provider', ... }),
-});
-const user = await res.json();
 ```
 
 ---
@@ -82,128 +66,71 @@ const user = await res.json();
 ### 1.2 Login
 
 ```http
-POST /auth/login
+POST {{BASE_URL}}/api/auth/login
 Content-Type: application/x-www-form-urlencoded
 ```
 
-Body: `username=provider@example.com&password=secret`
+**Request Body (Form Data):**
+`username=provider@example.com&password=secret`
 
-✅ Response (200)
-
+**Success Response (200):**
 ```json
 {
   "access_token": "eyJ...",
   "token_type": "bearer"
 }
 ```
-
-💡 The `refresh_token` cookie is set automatically.  
-**React**
-
-```jsx
-const params = new URLSearchParams({ username: email, password });
-const res = await fetch(`${API_URL}/auth/login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  body: params,
-  credentials: "include", // ← important
-});
-const { access_token } = await res.json();
-// store access_token in memory
-```
+*Note: A `refresh_token` cookie is set automatically.*
 
 ---
 
-### 1.3 Onboarding – create provider profile
+### 1.3 Onboarding – Create Provider Profile
 
-**Requires** `Authorization: Bearer <access_token>`
+**Header:** `Authorization: Bearer <access_token>`
 
 ```http
-POST /provider/onboarding
+POST {{BASE_URL}}/api/provider/onboarding
 Content-Type: application/json
 ```
 
+**Request Body:**
 ```json
 {
   "business_name": "Clean Masters",
-  "phone_number": "123456789",
-  "address": "123 Main St",
-  "business_registration_number": "REG123",
-  "profile_picture_url": null,
-  "commission_rate": null
+  "phone_number": "+256700000000",
+  "address": "123 Kampala Rd",
+  "business_registration_number": "REG-123456",
+  "profile_picture_url": "https://example.com/pic.jpg",
+  "commission_rate": 0.1
 }
 ```
 
-✅ Response (200)
-
+**Success Response (200):**
 ```json
 {
-  "id": "cuid...",
+  "id": "uuid-string",
   "business_name": "Clean Masters",
   "is_approved": false,
   "message": "Provider profile created, pending approval"
 }
 ```
-
-⚠️ The provider **cannot create services until an admin approves** the profile.
-
-**React**
-
-```jsx
-await fetch(`${API_URL}/provider/onboarding`, {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${accessToken}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(profileData),
-  credentials: "include",
-});
-```
+⚠️ **Pro Tip:** Providers **cannot** create services until an admin approves the profile.
 
 ---
 
-### 1.4 Admin approval
-
-Admin can approve the profile via the API or Django Admin.
+### 1.4 Create a Service (Requires Approved Profile)
 
 ```http
-POST /api/admin/providers/{provider_id}/approval
+POST {{BASE_URL}}/api/provider/services
 Content-Type: application/json
 ```
 
+**Request Body:**
 ```json
 {
-  "approved": true,
-  "notes": "Verified business license"
-}
-```
-
-✅ Response (200)
-
-```json
-{
-  "id": "provider_id",
-  "business_name": "Clean Masters",
-  "is_approved": true,
-  "message": "Provider approved"
-}
-```
-
----
-
-### 1.5 Create a service (requires approved profile)
-
-```http
-POST /provider/services
-Content-Type: application/json
-```
-
-```json
-{
-  "category_id": "cuid_of_service_category",
+  "category_id": "category-uuid",
   "name": "Deep House Cleaning",
-  "description": "Detailed cleaning",
+  "description": "Comprehensive cleaning including windows and floors.",
   "base_price": 120.0,
   "duration_minutes": 180,
   "requires_prepayment": false,
@@ -211,11 +138,10 @@ Content-Type: application/json
 }
 ```
 
-✅ Response (200)
-
+**Success Response (200):**
 ```json
 {
-  "id": "service_cuid",
+  "id": "service-uuid",
   "name": "Deep House Cleaning",
   "message": "Service created"
 }
@@ -223,81 +149,32 @@ Content-Type: application/json
 
 ---
 
-### 1.6 View incoming bookings
-
-```http
-GET /provider/bookings?status=pending
-```
-
-✅ Response
-
-```json
-{
-  "count": 2,
-  "bookings": [
-    {
-      "id": "booking_cuid",
-      "booking_date": "2026-05-20",
-      "status": "pending",
-      "client__user__email": "client@example.com",
-      "service__name": "Deep House Cleaning",
-      "total_amount": "120.00"
-    }
-  ]
-}
-```
-
----
-
-### 1.7 Accept a booking
-
-```http
-POST /provider/bookings/{booking_id}/accept
-```
-
-✅ Response
-
-```json
-{
-  "id": "booking_cuid",
-  "status": "accepted",
-  "message": "Booking accepted"
-}
-```
-
-(Reject works similarly with `/reject`.)
-
----
-
 ## 2. Client Flow
 
-### 2.1 Sign up as client
-
-Same as provider, but `"role": "client"`.
-
-### 2.2 Login (same as provider)
-
-### 2.3 Onboarding – create client profile
+### 2.1 Onboarding – Create Client Profile
 
 ```http
-POST /client/onboarding
+POST {{BASE_URL}}/api/client/onboarding
 Content-Type: application/json
 ```
 
+**Request Body:**
 ```json
 {
-  "phone_number": "0987654321",
+  "phone_number": "+256700111222",
   "preferred_language": "en",
-  "notification_preferences": { "email": true, "sms": true }
+  "notification_preferences": {
+    "email": true,
+    "sms": false
+  }
 }
 ```
 
-✅ Response
-
+**Success Response (200):**
 ```json
 {
-  "id": "client_profile_cuid",
-  "phone_number": "0987654321",
+  "id": "uuid-string",
+  "phone_number": "+256700111222",
   "preferred_language": "en",
   "message": "Client profile created"
 }
@@ -305,62 +182,28 @@ Content-Type: application/json
 
 ---
 
-### 2.4 List available services (public)
+### 2.2 Create a Booking
 
 ```http
-GET /services?category=cuid&search=clean&min_price=50&max_price=200
-```
-
-✅ Response
-
-```json
-{
-  "count": 3,
-  "results": [
-    {
-      "id": "service_cuid",
-      "name": "Deep House Cleaning",
-      "base_price": 120.0,
-      "provider__business_name": "Clean Masters"
-    }
-  ]
-}
-```
-
----
-
-### 2.5 Get service details
-
-```http
-GET /services/{service_id}
-```
-
-✅ Response includes provider info, category, etc.
-
----
-
-### 2.6 Create a booking
-
-```http
-POST /bookings
+POST {{BASE_URL}}/api/bookings
 Content-Type: application/json
 ```
 
+**Request Body:**
 ```json
 {
-  "service_id": "service_cuid",
-  "booking_date": "2026-05-20",
-  "start_time": "10:00",
-  "end_time": "13:00",
-  "special_requests": "Eco‑friendly products"
+  "service_id": "service-uuid",
+  "booking_date": "2024-12-25",
+  "start_time": "10:00:00",
+  "end_time": "12:00:00",
+  "special_requests": "Please bring eco-friendly detergents."
 }
 ```
 
-✅ Response
-
+**Success Response (200):**
 ```json
 {
-  "id": "booking_cuid",
+  "id": "booking-uuid",
   "status": "pending",
   "message": "Booking created, pending provider acceptance"
 }
@@ -368,95 +211,11 @@ Content-Type: application/json
 
 ---
 
-## 3. Admin Flow
+## Common Error Responses
 
-### 3.1 Login as admin (superuser)
-
-Same login endpoint. Admin must have `is_superuser=True` (created via `createsuperuser`).
-
-### 3.2 Create a department
-
-```http
-POST /api/admin/departments
-```
-
-```json
-{
-  "name": "Home Services",
-  "description": "Cleaning, repairs",
-  "icon": "home",
-  "is_active": true
-}
-```
-
-✅ Response
-
-```json
-{
-  "id": "dept_cuid",
-  "name": "Home Services",
-  "is_active": true
-}
-```
-
-### 3.3 Create a service category
-
-```http
-POST /api/admin/service-categories
-```
-
-```json
-{
-  "department_id": "dept_cuid",
-  "name": "Cleaning",
-  "description": "House cleaning",
-  "is_active": true
-}
-```
-
-✅ Response
-
-```json
-{
-  "id": "category_cuid",
-  "name": "Cleaning",
-  "department_id": "dept_cuid",
-  "is_active": true
-}
-```
-
-### 3.4 Approve provider profiles
-
-```http
-POST /api/admin/providers/{provider_id}/approval
-Content-Type: application/json
-```
-
-```json
-{
-  "approved": true,
-  "notes": "Approved after verification"
-}
-```
-
-✅ Response
-
-```json
-{
-  "id": "provider_id",
-  "business_name": "Clean Masters",
-  "is_approved": true,
-  "message": "Provider approved"
-}
-```
-
----
-
-## Common Errors
-
-| HTTP Status | Meaning                                                         |
-| ----------- | --------------------------------------------------------------- |
-| 401         | Not authenticated or token expired                              |
-| 403         | Insufficient permissions (wrong role, or provider not approved) |
-| 404         | Resource not found                                              |
-| 400         | Bad request (missing fields, or already exists)                 |
+| Status Code | Meaning | Example Body |
+| :--- | :--- | :--- |
+| **401** | Unauthorized | `{"detail": "Not authenticated"}` |
+| **403** | Forbidden | `{"detail": "Insufficient permissions"}` |
+| **404** | Not Found | `{"detail": "Service not found"}` |
+| **400** | Bad Request | `{"detail": "Email already registered"}` |

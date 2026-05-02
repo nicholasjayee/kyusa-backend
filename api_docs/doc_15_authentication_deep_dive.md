@@ -90,47 +90,18 @@ const data = await response.json();
 ### Endpoint
 
 ```
-POST /api/auth/login
+POST {{BASE_URL}}/api/auth/login
 ```
 
-### Important – Content‑Type
+### Request Specification
 
-The login endpoint expects **form‑urlencoded** data, not JSON. Use `URLSearchParams` or `FormData`.
+- **Method:** `POST`
+- **Content-Type:** `application/x-www-form-urlencoded`
+- **Body Fields:**
+  - `username`: The user's email address (Standard OAuth2 field mapping).
+  - `password`: The user's plain-text password.
 
-### Request (React / axios example with `URLSearchParams`)
-
-```javascript
-const params = new URLSearchParams();
-params.append("username", "user@example.com"); // email here
-params.append("password", "secure123");
-
-const response = await fetch("{{BASE_URL}}/api/auth/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  body: params,
-  credentials: "include", // Very important! Include cookies
-});
-const data = await response.json(); // { access_token, token_type }
-```
-
-**With axios:**
-
-```javascript
-const response = await axios.post(
-  "{{BASE_URL}}/api/auth/login",
-  new URLSearchParams({
-    username: "user@example.com",
-    password: "secure123",
-  }),
-  {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    withCredentials: true, // Include cookies
-  },
-);
-const accessToken = response.data.access_token;
-```
-
-### Success Response (200)
+### Success Response (200 OK)
 
 ```json
 {
@@ -139,32 +110,40 @@ const accessToken = response.data.access_token;
 }
 ```
 
-The server also sets an **HttpOnly cookie** named `refresh_token`. The browser will store it and automatically send it to `/api/auth/refresh` and `/api/auth/logout`.
+### Set-Cookie Header (Browser automatically handles this)
 
-### Error Response (401)
+The server sends a `Set-Cookie` header with the following attributes:
 
-```json
-{ "detail": "Incorrect email or password" }
-```
+- **Name:** `refresh_token`
+- **HttpOnly:** `true` (Cannot be accessed by JavaScript).
+- **Path:** `/`
+- **SameSite:** `Lax` (Protects against CSRF while allowing common usage).
+- **Max-Age:** 7 Days (Configurable in backend).
+
+### Handling Tokens on the Frontend
+
+1.  **Access Token:** Received in the JSON response. Store this **in memory** (e.g., a React state variable or a non-exported module variable). Do NOT store in `localStorage` as it is vulnerable to XSS.
+2.  **Refresh Token:** Automatically stored by the browser in an `HttpOnly` cookie. You do not need to do anything manually to store it.
+
+### Authentication State Check
+
+To check if a user is still logged in when the app starts:
+
+1.  Try calling `GET {{BASE_URL}}/api/me` with your stored access token.
+2.  If it fails with `401`, try calling `POST {{BASE_URL}}/api/auth/refresh`.
+3.  If refresh succeeds, you have a new session. If it fails, the user must log in again.
 
 ---
 
-## 3. Access Protected Endpoints (e.g., `/api/me`)
+## 3. Access Protected Endpoints
 
-Send the access token in the `Authorization` header.
+All protected endpoints require the access token in the `Authorization` header.
 
-### Example (fetch)
+### Request Format
 
-```javascript
-const accessToken = "..."; // from login response
-
-const response = await fetch("{{BASE_URL}}/api/me", {
-  headers: {
-    Authorization: `Bearer ${accessToken}`,
-  },
-  credentials: "include", // optional if you want to send cookies as well
-});
-const user = await response.json();
+```http
+GET /api/me
+Authorization: Bearer <your_access_token>
 ```
 
 ### Example Response

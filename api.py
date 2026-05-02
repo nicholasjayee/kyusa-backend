@@ -641,6 +641,28 @@ async def create_client_profile(
     }
 
 
+@app.get("/api/bookings")
+async def list_client_bookings(status: Optional[str] = None, current_user: User = Depends(get_current_user)):
+    if current_user.role != 'client':
+        raise HTTPException(status_code=403, detail="Only clients can view their bookings this way")
+    
+    try:
+        client = await sync_to_async(ClientProfile.objects.get)(user=current_user)
+    except ClientProfile.DoesNotExist:
+        raise HTTPException(status_code=400, detail="Client profile not found")
+    
+    @sync_to_async
+    def get():
+        qs = Booking.objects.filter(client=client).select_related('provider', 'service')
+        if status:
+            qs = qs.filter(status=status)
+        return list(qs.values(
+            "id", "booking_date", "start_time", "end_time", "status", "total_amount",
+            "special_requests", "provider__business_name", "service__name"
+        ))
+    bookings = await get()
+    return {"count": len(bookings), "bookings": bookings}
+
 
 @app.post("/api/provider/bookings/{booking_id}/accept")
 async def accept_booking(booking_id: str, action: BookingAction = None, provider: ProviderProfile = Depends(get_active_provider)):

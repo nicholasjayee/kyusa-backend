@@ -1,184 +1,92 @@
 # Kyusa API – Earnings & Payout Management
 
 > **Environment Information**
->
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
-> - **Django Admin:** `{{BASE_URL}}/_/admin`
+> - **Base URL:** `{{BASE_URL}}/api`
+> - **Pro Tip:** Set `withCredentials: true` (Axios) or `credentials: 'include'` (Fetch) to ensure the refresh token cookie is handled correctly.
 
 ---
 
 ## Overview
 
-1. **Financial Transparency** → Providers can track their revenue with real-time summaries of pending vs. available funds.
-2. **Earning Lifecycle** → Booking Completed → `Pending` Earning → `Available` (after release) → `Paid` (after payout).
-3. **Payout Process** → Providers initiate payout requests with destination details (e.g., bank info).
-4. **Admin Release** → Critical security step where admins verify and release earnings for payout.
-5. **Provider Approval** → Full access to financial features requires an 'Approved' provider profile status.
+Providers earn money through completed bookings. The financial lifecycle is:
+1. **Booking Completed**: Funds are recorded as `pending`.
+2. **Admin Release**: Admin verifies and moves funds to `available`.
+3. **Payout Request**: Provider requests a transfer of `available` funds.
+4. **Payout Processed**: Funds are moved to `paid`.
 
 ---
 
-# Documentation
+## 1. View Earnings Summary (Provider)
 
-# Kyusa API – Complete Feature Documentation
+Retrieve a high-level summary of financial status.
 
-## Base URL
+- **Endpoint:** `GET {{BASE_URL}}/api/provider/earnings/summary`
+- **Role:** `provider` (Approved)
+- **Headers:** `Authorization: Bearer <access_token>`
 
-```
-{{BASE_URL}}/api
-```
-
-## Authentication
-
-- All protected endpoints require `Authorization: Bearer <access_token>`.
-- Refresh token is stored in an `HttpOnly` cookie; include `credentials: 'include'` in all fetch/axios calls.
-
----
-
-## 1. Provider Availability Management
-
-### Set Weekly Schedule (replaces existing)
-
-```http
-POST /provider/availability
-```
-
-Body: array of 7 objects (Monday=0 … Sunday=6)
-
-```json
-[
-  {
-    "day_of_week": 0,
-    "start_time": "09:00",
-    "end_time": "17:00",
-    "is_off": false,
-    "max_bookings_per_day": 8
-  }
-]
-```
-
-✅ Response: `{"message":"Availability schedule updated"}`
-
-### Get Current Schedule
-
-```http
-GET /provider/availability
-```
-
-✅ Response: `{"availability": [...]}`
-
-### Add/Update Exception (one‑off)
-
-```http
-POST /provider/availability/exceptions
-```
-
-```json
-{ "date": "2026-05-25", "is_off": true, "reason": "Public holiday" }
-```
-
-✅ Response: `{"id":"...","date":"...","is_off":true,"message":"Exception saved"}`
-
-### List Exceptions
-
-```http
-GET /provider/availability/exceptions
-```
-
-✅ Response: `{"exceptions": [...]}`
-
-### Delete Exception
-
-```http
-DELETE /provider/availability/exceptions/{exception_id}
-```
-
-✅ Response: `{"message":"Exception deleted"}`
-
----
-
-## 2. Booking Completion & Earnings (Provider)
-
-### Complete a Booking (after service delivered)
-
-```http
-POST /provider/bookings/{booking_id}/complete
-```
-
-✅ Response:
-
+### ✅ Response (200 OK)
 ```json
 {
-  "id": "booking_cuid",
-  "status": "completed",
-  "total_amount": 120.0,
-  "commission_amount": 0.0,
-  "net_amount": 120.0,
-  "message": "Booking completed and earnings recorded"
+  "pending": 1250.00,
+  "available": 500.00,
+  "paid": 3000.00,
+  "total": 4750.00
 }
 ```
 
-- Creates a `ProviderEarnings` record with status `pending`.
+---
 
-### View Earnings Summary
+## 2. List Detailed Earnings (Provider)
 
-```http
-GET /provider/earnings/summary
-```
+Fetch a paginated list of individual earnings records.
 
-✅ Response:
+- **Endpoint:** `GET {{BASE_URL}}/api/provider/earnings`
+- **Method:** `GET`
+- **Query Params:**
+    - `status`: Filter by `pending`, `available`, or `paid`.
+    - `limit`: Number of records (default: 20).
+    - `offset`: Pagination offset (default: 0).
 
-```json
-{ "pending": 120.0, "available": 0.0, "paid": 0.0, "total": 120.0 }
-```
-
-### List Earnings (with pagination & status filter)
-
-```http
-GET /provider/earnings?status=pending&limit=20&offset=0
-```
-
-✅ Response:
-
+### ✅ Response (200 OK)
 ```json
 {
-  "total": 1,
+  "total": 45,
   "earnings": [
     {
-      "id": "earning_cuid",
-      "total_amount": 120.0,
-      "commission_amount": 0.0,
-      "net_amount": 120.0,
+      "id": "earn_12345",
+      "total_amount": 100.00,
+      "commission_amount": 10.00,
+      "net_amount": 90.00,
       "status": "pending",
       "paid_at": null,
-      "booking__id": "...",
-      "booking__service__name": "..."
+      "booking__id": "book_abcde",
+      "booking__service__name": "Deep House Cleaning"
     }
   ]
 }
 ```
 
-### Request a Payout (provider)
+---
 
-```http
-POST /provider/payouts
-Content-Type: application/json
-```
+## 3. Request a Payout (Provider)
 
+Submit a request to withdraw available funds.
+
+- **Endpoint:** `POST {{BASE_URL}}/api/provider/payouts`
+- **Body Schema (JSON):**
 ```json
 {
-  "amount": 120.0,
-  "destination": "Bank account 12345",
-  "notes": "First payout"
+  "amount": 500.00,
+  "destination": "Mobile Money: +256700000000",
+  "notes": "Weekly withdrawal"
 }
 ```
 
-✅ Response:
-
+### ✅ Response (200 OK)
 ```json
 {
-  "id": "payout_cuid",
-  "amount": 120.0,
+  "id": "pay_98765",
+  "amount": 500.00,
   "status": "requested",
   "message": "Payout requested"
 }
@@ -186,107 +94,38 @@ Content-Type: application/json
 
 ---
 
-## 3. Admin Operations
+## 4. Complete Booking & Trigger Earnings (Internal Logic)
 
-### Release Pending Earnings (make available for payout)
+When a provider completes a booking, earnings are automatically calculated and logged.
 
-```http
-POST /api/admin/earnings/{earning_id}/release
-```
+- **Endpoint:** `POST {{BASE_URL}}/api/provider/bookings/{booking_id}/complete`
+- **Implementation Note:** This endpoint calculates the commission based on active `CommissionRule` and creates a `ProviderEarnings` record in `pending` status.
 
-✅ Response:
+---
 
-```json
-{ "id": "...", "status": "available", "message": "Earning released for payout" }
-```
+## 5. Release Earnings (Admin Only)
 
-### Approve / Reject a Provider
+Move an earning from `pending` to `available`.
 
-```http
-POST /api/admin/providers/{provider_id}/approval
-```
+- **Endpoint:** `POST {{BASE_URL}}/api/admin/earnings/{earning_id}/release`
+- **Role:** `admin`
 
-```json
-{ "approved": true, "notes": "Optional" }
-```
-
-✅ Response:
-
+### ✅ Response (200 OK)
 ```json
 {
-  "id": "...",
-  "business_name": "...",
-  "is_approved": true,
-  "message": "Provider approved"
+  "id": "earn_12345",
+  "status": "available",
+  "message": "Earning released for payout"
 }
 ```
 
-### List Providers (filter by status)
-
-```http
-GET /api/admin/providers?status=pending
-```
-
-✅ Response: list of provider profiles.
-
 ---
 
-## 4. Client Reviews
+## Error Specifications
 
-### Submit a Review (for completed booking)
-
-```http
-POST /bookings/{booking_id}/review
-```
-
-```json
-{ "rating": 5, "comment": "Excellent service!" }
-```
-
-✅ Response:
-
-```json
-{ "id": "...", "rating": 5, "comment": "...", "message": "Review submitted" }
-```
-
-### Get Reviews for a Service (public)
-
-```http
-GET /services/{service_id}/reviews
-```
-
-✅ Response: list of reviews with client names & date.
-
----
-
-## 5. Existing Core Endpoints (summary)
-
-| Role     | Endpoint                              | Description                       |
-| -------- | ------------------------------------- | --------------------------------- |
-| Public   | `POST /auth/signup`                   | Create client/provider account    |
-| Public   | `POST /auth/login`                    | Login, get access token           |
-| Public   | `GET /services`                       | List services with filters        |
-| Public   | `GET /services/{id}`                  | Service details                   |
-| Client   | `POST /client/onboarding`             | Create client profile             |
-| Client   | `POST /bookings`                      | Create a booking                  |
-| Client   | `GET /bookings`                       | View own bookings                 |
-| Provider | `POST /provider/onboarding`           | Create provider profile (pending) |
-| Provider | `POST /provider/services`             | Create a service                  |
-| Provider | `GET /provider/bookings`              | List incoming bookings            |
-| Provider | `POST /provider/bookings/{id}/accept` | Accept a booking                  |
-| Provider | `POST /provider/bookings/{id}/reject` | Reject a booking                  |
-| Admin    | `POST /api/admin/departments`         | Create department                 |
-| Admin    | `POST /api/admin/service-categories`  | Create service category           |
-| Admin    | `GET /api/admin/departments`          | List departments                  |
-| Admin    | `GET /api/admin/service-categories`   | List categories                   |
-
----
-
-## Error Codes
-
-| Code | Meaning                                                |
-| ---- | ------------------------------------------------------ |
-| 400  | Bad request (validation, already exists, wrong status) |
-| 401  | Unauthenticated or token expired                       |
-| 403  | Forbidden (wrong role, provider not approved)          |
-| 404  | Resource not found                                     |
+| Status | Error Detail | Scenario |
+| :--- | :--- | :--- |
+| 400 | `Insufficient available balance` | Requesting payout > available amount. |
+| 403 | `Only providers can perform this action` | Non-provider attempting to view earnings. |
+| 403 | `Your provider account is pending approval` | Unapproved provider accessing financial data. |
+| 404 | `Earning not found` | Releasing a non-existent or already released earning. |

@@ -2,48 +2,39 @@
 
 > **Environment Information**
 >
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Base URL (Local):** `http://localhost:8000/api`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com/api`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
 
 ---
 
 ## Overview
 
-1. **Account Creation** → Signup as a `client` to start using the platform.
-2. **Authentication** → Login to receive an `access_token`; `refresh_token` is handled via cookies.
-3. **Mandatory Onboarding** → Complete the client profile (phone number and preferences) before booking.
-4. **Service Discovery** → Browse, search, and filter services provided by professionals.
-5. **Booking Process** → Select a service and request a booking for a specific date and time.
-6. **Session Management** → Refresh tokens periodically and logout securely.
+1.  **Account Creation** → Signup as a `client`.
+2.  **Authentication** → Login to receive an `access_token` and an `httpOnly` refresh token cookie.
+3.  **Mandatory Onboarding** → Complete the client profile (phone and preferences) before core actions.
+4.  **Service Discovery** → Browse, search, and filter public services.
+5.  **Booking Process** → Request a booking.
+6.  **Session Management** → Use `withCredentials: true` for all auth-related requests.
 
 ---
 
-# Documentation
+## Authentication & Headers
 
-## Base URL
-
-```
-{{BASE_URL}}/api
-```
-
-## Authentication
-
-- **Access token** – sent in `Authorization: Bearer <token>` header.
-- **Refresh token** – stored automatically in an **httpOnly cookie** (no JavaScript access).
-- All requests that need authentication must include `credentials: 'include'`.
+-   **Access Token:** Send in `Authorization: Bearer <access_token>` header.
+-   **Refresh Token:** Handled via **httpOnly cookie**.
+-   **Pro Tip:** Always include `withCredentials: true` in your fetch/axios config.
 
 ---
 
-## 1. Account creation (signup)
+## 1. Account Creation (Signup)
 
 ```http
-POST /auth/signup
+POST {{BASE_URL}}/api/auth/signup
 Content-Type: application/json
 ```
 
-**Body**
-
+**Request Body:**
 ```json
 {
   "email": "client@example.com",
@@ -51,15 +42,14 @@ Content-Type: application/json
   "password": "secret123",
   "first_name": "John",
   "last_name": "Doe",
-  "role": "client" // must be "client"
+  "role": "client"
 }
 ```
 
-✅ **Response (201 Created)**
-
+**Success Response (201):**
 ```json
 {
-  "id": "cuid123...",
+  "id": "uuid-string",
   "email": "client@example.com",
   "username": "clientuser",
   "first_name": "John",
@@ -67,13 +57,6 @@ Content-Type: application/json
   "role": "client",
   "is_active": true
 }
-```
-
-❌ **Error (400)**
-
-```json
-{ "detail": "Email already registered" }
-{ "detail": "Username already taken" }
 ```
 
 ---
@@ -81,238 +64,164 @@ Content-Type: application/json
 ## 2. Login
 
 ```http
-POST /auth/login
+POST {{BASE_URL}}/api/auth/login
 Content-Type: application/x-www-form-urlencoded
 ```
 
-**Body**
+**Request Body (Form Data):**
+`username=client@example.com&password=secret123`
 
-```
-username=client@example.com&password=secret123
-```
-
-✅ **Response (200)**
-
+**Success Response (200):**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "access_token": "eyJ...",
   "token_type": "bearer"
 }
 ```
 
-💡 The `refresh_token` cookie is set automatically by the server.
-
-**React example (login)**
-
-```jsx
-const params = new URLSearchParams({ username: email, password });
-const res = await fetch(`${API_URL}/auth/login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  body: params,
-  credentials: "include",
-});
-const { access_token } = await res.json();
-// store access_token in memory
-```
-
 ---
 
-## 3. Onboarding – create client profile (required)
+## 3. Onboarding – Create Client Profile
 
-After login, the client must create a profile before making bookings.
+**Required before making bookings.**
 
 ```http
-POST /client/onboarding
-Authorization: Bearer <access_token>
+POST {{BASE_URL}}/api/client/onboarding
 Content-Type: application/json
 ```
 
-**Body**
-
+**Request Body:**
 ```json
 {
   "phone_number": "1234567890",
   "preferred_language": "en",
-  "notification_preferences": { "email": true, "sms": false }
+  "notification_preferences": {
+    "email": true,
+    "sms": false
+  }
 }
 ```
 
-✅ **Response (200)**
-
+**Success Response (200):**
 ```json
 {
-  "id": "client_profile_cuid",
+  "id": "profile-uuid",
   "phone_number": "1234567890",
   "preferred_language": "en",
   "message": "Client profile created"
 }
 ```
 
-❌ **Error (400)**
-
-```json
-{ "detail": "Client profile already exists" }
-```
-
 ---
 
-## 4. Get current user (profile)
+## 4. Browse Services
+
+### 4.1 List Services
 
 ```http
-GET /me
-Authorization: Bearer <access_token>
+GET {{BASE_URL}}/api/services?category=uuid&search=clean&min_price=50&max_price=200
 ```
 
-✅ **Response (200)**
-
-```json
-{
-  "id": "cuid...",
-  "email": "client@example.com",
-  "username": "clientuser",
-  "first_name": "John",
-  "last_name": "Doe",
-  "role": "client",
-  "is_active": true
-}
-```
-
----
-
-## 5. Browse available services
-
-### 5.1 List all services (with filters)
-
-```http
-GET /services?category=<category_cuid>&search=clean&min_price=50&max_price=200
-```
-
-All parameters are optional.
-
-✅ **Response (200)**
-
+**Success Response (200):**
 ```json
 {
   "count": 2,
   "results": [
     {
-      "id": "service_cuid_1",
+      "id": "service-uuid",
       "name": "Deep House Cleaning",
-      "description": "Complete house cleaning",
+      "description": "Full cleaning...",
       "base_price": 120.0,
       "duration_minutes": 180,
       "requires_prepayment": false,
       "provider__business_name": "Clean Masters",
       "category__name": "Cleaning"
-    },
-    {
-      "id": "service_cuid_2",
-      "name": "Standard Cleaning",
-      "base_price": 80.0,
-      "provider__business_name": "Sparkle Inc."
     }
   ]
 }
 ```
 
-### 5.2 Get service details (including provider info)
+### 4.2 Service Details
 
 ```http
-GET /services/{service_id}
+GET {{BASE_URL}}/api/services/{service_id}
 ```
 
-✅ **Response (200)**
-
+**Success Response (200):**
 ```json
 {
-  "id": "service_cuid_1",
+  "id": "service-uuid",
   "name": "Deep House Cleaning",
-  "description": "Complete house cleaning",
+  "description": "Detailed cleaning",
   "base_price": 120.0,
   "duration_minutes": 180,
   "requires_prepayment": false,
   "cancellation_policy_hours": 24,
   "provider": {
-    "id": "provider_cuid",
+    "id": "provider-uuid",
     "business_name": "Clean Masters",
     "rating_avg": 4.8,
     "total_reviews": 15
   },
   "category": {
-    "id": "category_cuid",
+    "id": "category-uuid",
     "name": "Cleaning"
   }
 }
 ```
 
-❌ **Error (404)**
-
-```json
-{ "detail": "Service not found" }
-```
-
 ---
 
-## 6. Create a booking
+## 5. Bookings
+
+### 5.1 Create Booking
 
 ```http
-POST /bookings
-Authorization: Bearer <access_token>
+POST {{BASE_URL}}/api/bookings
 Content-Type: application/json
 ```
 
-**Body**
-
+**Request Body:**
 ```json
 {
-  "service_id": "service_cuid_1",
-  "booking_date": "2026-05-20",
-  "start_time": "10:00",
-  "end_time": "13:00",
+  "service_id": "service-uuid",
+  "booking_date": "2024-12-25",
+  "start_time": "10:00:00",
+  "end_time": "13:00:00",
   "special_requests": "Use eco-friendly products"
 }
 ```
 
-✅ **Response (200)**
-
+**Success Response (200):**
 ```json
 {
-  "id": "booking_cuid",
+  "id": "booking-uuid",
   "status": "pending",
   "message": "Booking created, pending provider acceptance"
 }
 ```
 
-❌ **Errors**
-
-- `403` – only clients can create bookings
-- `400` – client profile not found (run onboarding first)
-- `404` – service not found
-
----
-
-## 7. View client’s bookings
+### 5.2 My Bookings
 
 ```http
-GET /bookings?status=pending
+GET {{BASE_URL}}/api/bookings?status=accepted
 ```
 
-Optional `status` filter: `pending`, `accepted`, `rejected`, `confirmed`, `completed`, `cancelled`, `disputed`.
-
-✅ **Response (200)**
-
+**Success Response (200):**
 ```json
 {
   "count": 1,
   "bookings": [
     {
-      "id": "booking_cuid",
-      "booking_date": "2026-05-20",
+      "id": "booking-uuid",
+      "booking_date": "2024-12-25",
+      "start_time": "10:00:00",
+      "end_time": "13:00:00",
       "status": "accepted",
-      "total_amount": "120.00",
-      "service__name": "Deep House Cleaning",
-      "provider__business_name": "Clean Masters"
+      "total_amount": 120.0,
+      "special_requests": "Use eco-friendly products",
+      "provider__business_name": "Clean Masters",
+      "service__name": "Deep House Cleaning"
     }
   ]
 }
@@ -320,99 +229,30 @@ Optional `status` filter: `pending`, `accepted`, `rejected`, `confirmed`, `compl
 
 ---
 
-## 8. Refresh access token
+## 6. Reviews
 
-When the access token expires (15 minutes), call this endpoint. The refresh token cookie is sent automatically.
+### 6.1 Submit Review
 
 ```http
-POST /auth/refresh
+POST {{BASE_URL}}/api/bookings/{booking_id}/review
+Content-Type: application/json
 ```
 
-✅ **Response (200)**
-
+**Request Body:**
 ```json
 {
-  "access_token": "new_access_token",
-  "token_type": "bearer"
+  "rating": 5,
+  "comment": "Amazing service!"
 }
 ```
 
-❌ **Error (401)**
-
+**Success Response (200):**
 ```json
-{ "detail": "Refresh token missing" }
+{
+  "id": "review-uuid",
+  "rating": 5,
+  "comment": "Amazing service!",
+  "message": "Review submitted"
+}
 ```
-
----
-
-## 9. Logout
-
-```http
-POST /auth/logout
-Authorization: Bearer <access_token>
-```
-
-✅ **Response (200)**
-
-```json
-{ "message": "Logged out" }
-```
-
----
-
-## 10. Example React helper (axios interceptor)
-
-```javascript
-// api.js
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: '{{BASE_URL}}/api',
-  withCredentials: true,   // sends cookies
-});
-
-let accessToken = null;
-
-api.interceptors.request.use(config => {
-  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
-  return config;
-});
-
-api.interceptors.response.use(
-  res => res,
-  async error => {
-    if (error.response?.status === 401 && !error.config._retry) {
-      error.config._retry = true;
-      try {
-        const refreshRes = await api.post('/auth/refresh');
-        accessToken = refreshRes.data.access_token;
-        error.config.headers.Authorization = `Bearer ${accessToken}`;
-        return api(error.config);
-      } catch (refreshError) {
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
-
-export { api, setAccessToken: (token) => { accessToken = token; } };
-```
-
----
-
-## Summary of client endpoints
-
-| Action                      | Endpoint                  | Auth required |
-| --------------------------- | ------------------------- | ------------- |
-| Signup                      | `POST /auth/signup`       | No            |
-| Login                       | `POST /auth/login`        | No            |
-| Onboarding (create profile) | `POST /client/onboarding` | Yes           |
-| Get own profile             | `GET /me`                 | Yes           |
-| List services               | `GET /services`           | No            |
-| Service details             | `GET /services/{id}`      | No            |
-| Create booking              | `POST /bookings`          | Yes           |
-| List my bookings            | `GET /bookings`           | Yes           |
-| Refresh token               | `POST /auth/refresh`      | No (cookie)   |
-| Logout                      | `POST /auth/logout`       | Yes           |
+⚠️ **Pro Tip:** Reviews can only be submitted for bookings with `status: "completed"`.

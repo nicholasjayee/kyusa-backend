@@ -1,78 +1,69 @@
 # Kyusa API – Client Favorites
 
 > **Environment Information**
->
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
-> - **Django Admin:** `{{BASE_URL}}/_/admin`
+> - **Base URL:** `{{BASE_URL}}/api`
+> - **Role Requirement:** `client`
+> - **Pro Tip:** Use this feature to drive "Re-book" UI components in the client dashboard.
 
 ---
 
 ## Overview
 
-1. **Personalization** → Clients can save services to their 'Favorites' for faster re-booking and easy discovery.
-2. **Simple Management** → Direct endpoints to add or remove services from the user's private list.
-3. **Data Access** → The list endpoint provides essential service metadata to render favorite cards in React.
-4. **Restricted Access** → This feature is exclusively available to authenticated clients with completed onboarding.
-5. **Conflict Handling** → The system gracefully handles attempts to add or remove services that don't exist.
-
----
-
-# Documentation
-
-## Base URL
-
-```
-{{BASE_URL}}/api
-```
-
-## Authentication
-
-All endpoints require a valid client `access_token` (Bearer) and `credentials: 'include'`.
+Clients can "favorite" services to build a personalized list for quick access. This is a private list managed by the client.
 
 ---
 
 ## 1. Add Service to Favorites
 
-```http
-POST /favorites/{service_id}
-Authorization: Bearer <client_token>
-```
+Save a service to the client's favorites list.
 
-**Path parameter:** `service_id` – the CUID of the service.
+- **Endpoint:** `POST {{BASE_URL}}/api/favorites/{service_id}`
+- **Headers:** `Authorization: Bearer <access_token>`
 
-✅ **Response (200)**
-
+### ✅ Response (200 OK)
 ```json
 {
-  "id": "favorite_cuid",
+  "id": "fav_555",
   "message": "Service added to favorites"
 }
 ```
 
-❌ **Error (404)** – service not found.
+---
+
+## 2. Remove Service from Favorites
+
+Remove a service from the client's favorites list.
+
+- **Endpoint:** `DELETE {{BASE_URL}}/api/favorites/{service_id}`
+- **Headers:** `Authorization: Bearer <access_token>`
+
+### ✅ Response (200 OK)
+```json
+{
+  "message": "Service removed from favorites"
+}
+```
 
 ---
 
-## 2. List Client’s Favorites
+## 3. List Client’s Favorites
 
-```http
-GET /favorites
-Authorization: Bearer <client_token>
-```
+Retrieve all services currently favorited by the authenticated client.
 
-✅ **Response (200)**
+- **Endpoint:** `GET {{BASE_URL}}/api/favorites`
+- **Headers:** `Authorization: Bearer <access_token>`
 
+### ✅ Response (200 OK)
 ```json
 {
   "count": 1,
   "favorites": [
     {
-      "id": "favorite_cuid",
-      "service_id": "service_cuid",
-      "service_name": "Deep House Cleaning",
-      "service_base_price": 120.0,
-      "created_at": "2026-05-01T10:55:57.948795Z"
+      "id": "fav_555",
+      "service_id": "svc_123",
+      "service_name": "Professional Hair Styling",
+      "service_base_price": 50.00,
+      "created_at": "2026-05-20T14:30:00Z"
     }
   ]
 }
@@ -80,46 +71,29 @@ Authorization: Bearer <client_token>
 
 ---
 
-## 3. Remove Service from Favorites
+## Error Specifications
 
-```http
-DELETE /favorites/{service_id}
-Authorization: Bearer <client_token>
-```
-
-**Path parameter:** `service_id` – the CUID of the service.
-
-✅ **Response (200)**
-
-```json
-{ "message": "Service removed from favorites" }
-```
-
-❌ **Error (404)** – favorite not found.
+| Status | Error Detail | Scenario |
+| :--- | :--- | :--- |
+| 400 | `Service already in favorites` | Attempting to favorite a service twice. |
+| 403 | `Only clients can add favorites` | Provider attempting to use favorite features. |
+| 404 | `Service not found` | Favoriting a non-existent or inactive service. |
+| 404 | `Favorite not found` | Attempting to delete a favorite that doesn't exist. |
 
 ---
 
-## React Example
+## React implementation (Zustand/Context Example)
 
-```jsx
-// Add to favorites
-await fetch(`${API_URL}/favorites/${serviceId}`, {
-  method: "POST",
-  headers: { Authorization: `Bearer ${accessToken}` },
-  credentials: "include",
-});
-
-// List favorites
-const res = await fetch(`${API_URL}/favorites`, {
-  headers: { Authorization: `Bearer ${accessToken}` },
-  credentials: "include",
-});
-const { favorites } = await res.json();
-
-// Remove from favorites
-await fetch(`${API_URL}/favorites/${serviceId}`, {
-  method: "DELETE",
-  headers: { Authorization: `Bearer ${accessToken}` },
-  credentials: "include",
-});
+```javascript
+const toggleFavorite = async (serviceId, isFavorited) => {
+  const method = isFavorited ? 'DELETE' : 'POST';
+  const response = await fetch(`{{BASE_URL}}/api/favorites/${serviceId}`, {
+    method,
+    headers: { 'Authorization': `Bearer ${token}` },
+    credentials: 'include'
+  });
+  if (response.ok) {
+    // Update local state
+  }
+};
 ```

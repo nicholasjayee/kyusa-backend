@@ -2,150 +2,74 @@
 
 > **Environment Information**
 >
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Base URL (Local):** `http://localhost:8000/api`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com/api`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
 
 ---
 
 ## Overview
 
-1. **Weekly Schedule** → Define standard working hours for each day of the week (0=Monday, 6=Sunday).
-2. **Booking Limits** → Set maximum bookings allowed per day to prevent overbooking.
-3. **One-off Exceptions** → Mark specific dates as 'off' or set custom hours for holidays or personal time.
-4. **Schedule Retrieval** → View current weekly settings and a list of upcoming exceptions.
-5. **Dynamic Updates** → Re-set the entire weekly schedule or surgically delete specific exceptions.
+1.  **Weekly Schedule:** Define standard working hours for each day of the week (0=Monday, 6=Sunday).
+2.  **Booking Limits:** Set maximum bookings allowed per day to prevent overbooking.
+3.  **One-off Exceptions:** Mark specific dates as 'off' or set custom hours for holidays.
+4.  **Pro Tip:** Always include `withCredentials: true` to ensure the session remains active.
 
 ---
 
-# Documentation
-
-## Base URL
-
-```
-{{BASE_URL}}/api
-```
-
-## Authentication
-
-All endpoints require a valid `access_token` (Bearer) and `credentials: 'include'`.  
-The provider must have an **approved** provider profile.
-
----
-
-## 1. Set Weekly Schedule (replaces existing)
+## 1. Set Weekly Schedule (Replaces Existing)
 
 ```http
-POST /provider/availability
+POST {{BASE_URL}}/api/provider/availability
 Content-Type: application/json
 ```
 
-**Body** – array of 7 objects (one per day, Monday=0 … Sunday=6)
-
+**Request Body:** (Array of exactly 7 objects recommended)
 ```json
 [
-  {"day_of_week": 0, "start_time": "09:00", "end_time": "17:00", "is_off": false, "max_bookings_per_day": 8},
-  {"day_of_week": 1, "start_time": "09:00", "end_time": "17:00", "is_off": false, "max_bookings_per_day": 8},
-  ...
+  {
+    "day_of_week": 0,
+    "start_time": "09:00",
+    "end_time": "17:00",
+    "is_off": false,
+    "max_bookings_per_day": 8
+  },
+  {
+    "day_of_week": 1,
+    "start_time": "09:00",
+    "end_time": "17:00",
+    "is_off": false,
+    "max_bookings_per_day": 8
+  }
 ]
 ```
 
-✅ **Response**
-
+**Success Response (200):**
 ```json
-{ "message": "Availability schedule updated" }
+{
+  "message": "Availability schedule updated"
+}
 ```
-
-❌ **Errors** – `403` (provider not approved), `400` (invalid data)
 
 ---
 
 ## 2. Get Current Schedule
 
 ```http
-GET /provider/availability
+GET {{BASE_URL}}/api/provider/availability
 ```
 
-✅ **Response**
-
+**Success Response (200):**
 ```json
 {
   "availability": [
     {
-      "id": "cuid123",
+      "id": "uuid-string",
       "day_of_week": 0,
       "start_time": "09:00:00",
       "end_time": "17:00:00",
       "is_off": false,
       "max_bookings_per_day": 8
-    },
-    ...
-  ]
-}
-```
-
----
-
-## 3. Add an Exception (one‑off change)
-
-```http
-POST /provider/availability/exceptions
-Content-Type: application/json
-```
-
-**Body**
-
-```json
-{
-  "date": "2026-05-25",
-  "is_off": true,
-  "reason": "Public holiday"
-}
-```
-
-Or to custom hours:
-
-```json
-{
-  "date": "2026-05-26",
-  "is_off": false,
-  "start_time": "12:00",
-  "end_time": "16:00",
-  "reason": "Half day"
-}
-```
-
-✅ **Response**
-
-```json
-{
-  "id": "exception_cuid",
-  "date": "2026-05-25",
-  "is_off": true,
-  "message": "Exception saved"
-}
-```
-
----
-
-## 4. List Exceptions
-
-```http
-GET /provider/availability/exceptions
-```
-
-✅ **Response**
-
-```json
-{
-  "exceptions": [
-    {
-      "id": "exception_cuid",
-      "date": "2026-05-25",
-      "is_off": true,
-      "start_time": null,
-      "end_time": null,
-      "reason": "Public holiday"
     }
   ]
 }
@@ -153,42 +77,67 @@ GET /provider/availability/exceptions
 
 ---
 
-## 5. Delete an Exception
+## 3. Availability Exceptions (One-off Changes)
+
+### 3.1 Add Exception
 
 ```http
-DELETE /provider/availability/exceptions/{exception_id}
+POST {{BASE_URL}}/api/provider/availability/exceptions
+Content-Type: application/json
 ```
 
-✅ **Response**
-
+**Request Body:**
 ```json
-{ "message": "Exception deleted" }
+{
+  "date": "2024-12-25",
+  "is_off": true,
+  "start_time": null,
+  "end_time": null,
+  "reason": "Christmas Day"
+}
 ```
 
-❌ **Error** – `404` if not found
+**Success Response (200):**
+```json
+{
+  "id": "exception-uuid",
+  "date": "2024-12-25",
+  "is_off": true,
+  "message": "Exception saved"
+}
+```
 
----
+### 3.2 List Exceptions
 
-## React Example (setting schedule)
+```http
+GET {{BASE_URL}}/api/provider/availability/exceptions
+```
 
-```jsx
-const schedule = [
-  {
-    day_of_week: 0,
-    start_time: "09:00",
-    end_time: "17:00",
-    is_off: false,
-    max_bookings_per_day: 8,
-  },
-  // ... other days
-];
-await fetch(`${API_URL}/provider/availability`, {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${accessToken}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(schedule),
-  credentials: "include",
-});
+**Success Response (200):**
+```json
+{
+  "exceptions": [
+    {
+      "id": "exception-uuid",
+      "date": "2024-12-25",
+      "is_off": true,
+      "start_time": null,
+      "end_time": null,
+      "reason": "Christmas Day"
+    }
+  ]
+}
+```
+
+### 3.3 Delete Exception
+
+```http
+DELETE {{BASE_URL}}/api/provider/availability/exceptions/{exception_id}
+```
+
+**Success Response (200):**
+```json
+{
+  "message": "Exception deleted"
+}
 ```

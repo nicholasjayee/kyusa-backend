@@ -2,49 +2,31 @@
 
 > **Environment Information**
 >
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Base URL (Local):** `http://localhost:8000/api`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com/api`
 > - **Django Admin:** `{{BASE_URL}}/_/admin`
 
 ---
 
 ## Overview
 
-1. **Quality Feedback** → Clients submit a star rating (1-5) and optional text comment after a service is completed.
-2. **Reputation Management** → Provider profile metrics (`rating_avg`, `total_reviews`) are updated in real-time.
-3. **Public Transparency** → Service reviews are publicly accessible, helping new clients make informed decisions.
-4. **Eligibility Check** → Only the specific client associated with a _Completed_ booking can submit a review.
-5. **Uniqueness** → System enforces a single review per booking to ensure data integrity.
+1.  **Quality Feedback:** Clients submit a star rating (1-5) and optional text comment after a service is completed.
+2.  **Reputation Management:** Provider profile metrics (`rating_avg`, `total_reviews`) are updated in real-time.
+3.  **Public Transparency:** Service reviews are publicly accessible.
+4.  **Pro Tip:** Always include `withCredentials: true` to support persistent sessions.
 
 ---
 
-# Documentation
+## 1. Submit a Review
 
-## Base URL
-
-```
-{{BASE_URL}}/api
-```
-
-## Authentication
-
-- Creating a review requires a valid client `access_token` (Bearer) and `credentials: 'include'`.
-- Viewing reviews is **public** (no auth required).
-
----
-
-## 1. Submit a Review (for a completed booking)
+**Requires:** Completed booking and client authentication.
 
 ```http
-POST /bookings/{booking_id}/review
-Authorization: Bearer <client_token>
+POST {{BASE_URL}}/api/bookings/{booking_id}/review
 Content-Type: application/json
 ```
 
-**Path parameter:** `booking_id` – the unique CUID of the completed booking.
-
-**Body**
-
+**Request Body:**
 ```json
 {
   "rating": 5,
@@ -52,97 +34,48 @@ Content-Type: application/json
 }
 ```
 
-- `rating` – integer from 1 to 5 (required)
-- `comment` – optional text (max length not enforced)
-
-✅ **Response (200)**
-
+**Success Response (200):**
 ```json
 {
-  "id": "review_cuid",
+  "id": "review-uuid",
   "rating": 5,
   "comment": "Excellent service, very professional!",
   "message": "Review submitted"
 }
 ```
 
-✅ **Side effects**
-
-- The provider’s `rating_avg` and `total_reviews` are automatically updated.
-- Only one review allowed per booking.
-
-❌ **Errors**
-| Status | Response |
-|--------|----------|
-| 403 | `{"detail":"Only clients can write reviews"}` |
-| 404 | `{"detail":"Booking not found for this client"}` |
-| 400 | `{"detail":"You can only review completed bookings"}` |
-| 400 | `{"detail":"You have already reviewed this booking"}` |
-
-**React example**
-
-```jsx
-await fetch(`${API_URL}/bookings/${bookingId}/review`, {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${accessToken}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ rating: 5, comment: "Great job!" }),
-  credentials: "include",
-});
-```
-
 ---
 
-## 2. Get Reviews for a Service (public)
+## 2. Get Reviews for a Service (Public)
 
 ```http
-GET /services/{service_id}/reviews
+GET {{BASE_URL}}/api/services/{service_id}/reviews
 ```
 
-No authentication required.
-
-**Path parameter:** `service_id` – the CUID of the service.
-
-✅ **Response (200)**
-
+**Success Response (200):**
 ```json
 {
   "count": 1,
   "reviews": [
     {
-      "id": "review_cuid",
+      "id": "review-uuid",
       "rating": 5,
       "comment": "Excellent service, very professional!",
-      "created_at": "2026-05-01T10:13:53.608996Z",
-      "client__user__first_name": "Test",
-      "client__user__last_name": "Client"
+      "created_at": "2024-05-01T10:00:00Z",
+      "client__user__first_name": "John",
+      "client__user__last_name": "Doe"
     }
   ]
 }
 ```
 
-❌ **Error** – `404` if service not found (but returns empty list if no reviews).
-
-**React example**
-
-```jsx
-const res = await fetch(`${API_URL}/services/${serviceId}/reviews`);
-const reviews = await res.json();
-```
-
 ---
 
-## 3. (Optional) Provider can see their own reviews
+## Eligibility Matrix
 
-You can reuse the same endpoint using the service ID (public). Or later we can add a dedicated endpoint for providers to see all reviews for their services. That is not yet implemented.
-
----
-
-## Summary of Review Endpoints
-
-| Action                   | Endpoint                     | Auth required |
-| ------------------------ | ---------------------------- | ------------- |
-| Submit review (client)   | `POST /bookings/{id}/review` | Yes (client)  |
-| List reviews for service | `GET /services/{id}/reviews` | No            |
+| Condition | Status |
+| :--- | :--- |
+| Booking is `completed` | ✅ Can Review |
+| Booking is `accepted` | ❌ Must complete first |
+| Review already exists | ❌ One per booking |
+| User is not the client | ❌ Forbidden |

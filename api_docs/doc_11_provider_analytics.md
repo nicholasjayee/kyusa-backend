@@ -1,98 +1,87 @@
 # Kyusa API – Provider Analytics
 
 > **Environment Information**
->
-> - **Base URL (Local):** `http://localhost:8000`
-> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
-> - **Django Admin:** `{{BASE_URL}}/_/admin`
+> - **Base URL:** `{{BASE_URL}}/api`
+> - **Role Requirement:** `provider` (Approved)
+> - **Pro Tip:** Combine this data with `doc_09` (Earnings) for a complete business overview.
 
 ---
 
 ## Overview
 
-1. **Business Intelligence** → Providers gain insights into their performance through a consolidated dashboard endpoint.
-2. **Revenue Tracking** → Clear visibility into gross revenue and net earnings (pending/available/paid).
-3. **Historical Trends** → Monthly data aggregation allows providers to track growth over the previous 6 months.
-4. **Operational Status** → Instant breakdown of bookings by status (Completed, Pending, etc.).
-5. **React Integration** → Simplified data structure designed for easy mapping to UI components and charts.
+Analytics provide providers with actionable insights into their performance, including booking volume, revenue trends, and earnings status.
 
 ---
 
-# Documentation
+## 1. Provider Dashboard Analytics
 
-## Base URL
+Get a comprehensive overview of performance metrics.
 
-```
-{{BASE_URL}}/api
-```
+- **Endpoint:** `GET {{BASE_URL}}/api/provider/analytics/dashboard`
+- **Headers:** `Authorization: Bearer <access_token>`
 
-## Authentication
-
-Requires a valid provider `access_token` (Bearer) and `credentials: 'include'`.
-
----
-
-## Dashboard Analytics
-
-```http
-GET /provider/analytics/dashboard
-Authorization: Bearer <provider_token>
-```
-
-Returns key performance metrics for the authenticated provider.
-
-### ✅ Response (200)
-
+### ✅ Response (200 OK)
 ```json
 {
-  "booking_counts": [{ "status": "completed", "count": 1 }],
-  "total_bookings": 1,
-  "completed_revenue": 120.0,
+  "booking_counts": [
+    { "status": "pending", "count": 5 },
+    { "status": "completed", "count": 25 },
+    { "status": "rejected", "count": 2 }
+  ],
+  "total_bookings": 32,
+  "completed_revenue": 2500.00,
   "earnings": {
-    "pending": 0.0,
-    "available": 120.0,
-    "paid": 0.0
+    "pending": 250.00,
+    "available": 100.00,
+    "paid": 2150.00
   },
   "monthly_breakdown": [
     {
       "month": "2026-05",
-      "bookings": 1,
-      "revenue": 120.0
+      "bookings": 10,
+      "revenue": 1000.00
+    },
+    {
+      "month": "2026-04",
+      "bookings": 15,
+      "revenue": 1500.00
     }
   ]
 }
 ```
 
-### Response Fields
+### Response Field Details
 
-| Field                | Description                                                                    |
-| -------------------- | ------------------------------------------------------------------------------ |
-| `booking_counts`     | List of objects with `status` and number of bookings in that status            |
-| `total_bookings`     | Total number of bookings for this provider                                     |
-| `completed_revenue`  | Sum of `total_amount` for all completed bookings                               |
-| `earnings.pending`   | Net amount of earnings not yet available for payout                            |
-| `earnings.available` | Net amount ready for payout                                                    |
-| `earnings.paid`      | Net amount already paid out                                                    |
-| `monthly_breakdown`  | Array of last 6 months (most recent first) with bookings and revenue per month |
-
-### ❌ Error (401)
-
-```json
-{ "detail": "Invalid token" }
-```
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `booking_counts` | Array | Grouped counts of bookings by their current status. |
+| `total_bookings` | Int | Lifetime total bookings for this provider. |
+| `completed_revenue` | Float | Gross revenue from all completed bookings. |
+| `earnings` | Object | Breakdown of net earnings across the lifecycle. |
+| `monthly_breakdown` | Array | Performance stats for the last 6 months (revenue & booking count). |
 
 ---
 
-## React Example
+## Error Specifications
 
-```jsx
-const fetchAnalytics = async () => {
-  const res = await fetch(`${API_URL}/provider/analytics/dashboard`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    credentials: "include",
-  });
-  const data = await res.json();
-  console.log(data.completed_revenue);
-  console.log(data.monthly_breakdown);
+| Status | Error Detail | Scenario |
+| :--- | :--- | :--- |
+| 401 | `Invalid token` | Expired or missing access token. |
+| 403 | `Only providers can perform this action` | Client attempting to access provider analytics. |
+| 403 | `Your provider account is pending approval` | Unapproved provider profile. |
+
+---
+
+## Visualization Tip (React + Chart.js)
+
+The `monthly_breakdown` array is pre-formatted for easy ingestion by chart libraries.
+
+```javascript
+const chartData = {
+  labels: data.monthly_breakdown.map(item => item.month),
+  datasets: [{
+    label: 'Revenue',
+    data: data.monthly_breakdown.map(item => item.revenue)
+  }]
 };
 ```
