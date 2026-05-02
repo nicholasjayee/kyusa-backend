@@ -1,0 +1,35 @@
+/* 
+   Surgical overrides for Unfold admin. 
+   These aim to fix the "double border" and "wired" look caused by 
+   standard Django styles conflicting with Tailwind classes.
+*/
+
+/* Target inputs specifically to remove box-shadow noise that looks like inner borders */
+.unfold-input,
+.unfold-admin-select2,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="tel"],
+textarea,
+select {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Fix sidebar search bar aesthetics - ensuring it's sleek and not "wired" */
+#nav-sidebar input[type="text"] {
+    border: 1px solid rgba(209, 213, 219, 0.5) !important; /* light gray-300 with opacity */
+    background-color: transparent !important;
+}
+
+#nav-sidebar input[type="text"]:focus {
+    border-color: var(--color-primary-500) !important;
+}
+
+/* Refine the Switch (Toggle) elegance */
+.unfold-boolean-switch {
+    /* Potential tweaks if the switch doesn't look right */
+}

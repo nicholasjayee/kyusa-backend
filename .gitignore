@@ -1,0 +1,50 @@
+# Environment variables / Secrets
+.env
+*.txt
+!README.md
+!requirements.txt
+
+# Databases
+db.sqlite3
+db.sqlite3-journal
+
+# Static files and Media
+staticfiles/
+media/
+dispute_evidence/
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+manifest
+spec
+*.log
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Package Manager artifacts
+node_modules/
+.uv/
+
+# Project Specific
+.gemini
+.plans
+*.pdf
+.hidden
