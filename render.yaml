@@ -12,7 +12,25 @@ services:
         sync: false
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings
-      - key: JWT_SECRET_KEY
-        generateValue: true
       - key: ALLOWED_HOSTS
         value: kyusa-backend.onrender.com
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "15"
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        value: noreply@kyusa.com
