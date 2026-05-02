@@ -1,5 +1,12 @@
 # Kyusa API – Client Favorites
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Personalization** → Clients can save services to their 'Favorites' for faster re-booking and easy discovery.
 2. **Simple Management** → Direct endpoints to add or remove services from the user's private list.
@@ -14,7 +21,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication

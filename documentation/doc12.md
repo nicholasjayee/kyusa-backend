@@ -1,5 +1,12 @@
 # Kyusa API – Email Notifications
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Configuration (Backend)
 
 Set these environment variables in your `.env`:

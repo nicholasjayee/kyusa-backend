@@ -1,5 +1,12 @@
 # Kyusa API – Complete Endpoint Reference
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Master Registry** → A single source of truth for all available API methods and paths.
 2. **Access Control** → Endpoints are strictly segmented by user role (`Public`, `Client`, `Provider`, `Admin`).
@@ -14,7 +21,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 All authenticated endpoints require `Authorization: Bearer <access_token>` and `credentials: 'include'`.
@@ -71,12 +78,12 @@ All authenticated endpoints require `Authorization: Bearer <access_token>` and `
 
 | Method      | Endpoint                                       | Description                       |
 | ----------- | ---------------------------------------------- | --------------------------------- |
-| POST        | `/admin/departments`                           | Create a department               |
-| GET         | `/admin/departments`                           | List all departments              |
-| POST        | `/admin/service-categories`                    | Create a service category         |
-| GET         | `/admin/service-categories`                    | List all categories               |
-| GET         | `/admin/providers?status=pending`              | List providers (filter by status) |
-| POST        | `/admin/providers/{id}/approval`               | Approve or reject a provider      |
+| POST        | `/_/admin/departments`                           | Create a department               |
+| GET         | `/_/admin/departments`                           | List all departments              |
+| POST        | `/_/admin/service-categories`                    | Create a service category         |
+| GET         | `/_/admin/service-categories`                    | List all categories               |
+| GET         | `/_/admin/providers?status=pending`              | List providers (filter by status) |
+| POST        | `/_/admin/providers/{id}/approval`               | Approve or reject a provider      |
 | (same auth) | `/auth/login`, `/auth/refresh`, `/auth/logout` | Same as others                    |
 
 ---

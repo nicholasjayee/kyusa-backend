@@ -1,3 +1,10 @@
+
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
 1. **Client books a service** → booking status `pending`.
 2. **Provider accepts** → booking status `accepted`.
 3. **Provider delivers the service** → provider calls `POST /provider/bookings/{id}/complete`.

@@ -1,5 +1,12 @@
 # Kyusa API – Earnings & Payout Management
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Financial Transparency** → Providers can track their revenue with real-time summaries of pending vs. available funds.
 2. **Earning Lifecycle** → Booking Completed → `Pending` Earning → `Available` (after release) → `Paid` (after payout).
@@ -16,7 +23,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication
@@ -182,7 +189,7 @@ Content-Type: application/json
 ### Release Pending Earnings (make available for payout)
 
 ```http
-POST /admin/earnings/{earning_id}/release
+POST /_/admin/earnings/{earning_id}/release
 ```
 
 ✅ Response:
@@ -194,7 +201,7 @@ POST /admin/earnings/{earning_id}/release
 ### Approve / Reject a Provider
 
 ```http
-POST /admin/providers/{provider_id}/approval
+POST /_/admin/providers/{provider_id}/approval
 ```
 
 ```json
@@ -215,7 +222,7 @@ POST /admin/providers/{provider_id}/approval
 ### List Providers (filter by status)
 
 ```http
-GET /admin/providers?status=pending
+GET /_/admin/providers?status=pending
 ```
 
 ✅ Response: list of provider profiles.
@@ -266,10 +273,10 @@ GET /services/{service_id}/reviews
 | Provider | `GET /provider/bookings`              | List incoming bookings            |
 | Provider | `POST /provider/bookings/{id}/accept` | Accept a booking                  |
 | Provider | `POST /provider/bookings/{id}/reject` | Reject a booking                  |
-| Admin    | `POST /admin/departments`             | Create department                 |
-| Admin    | `POST /admin/service-categories`      | Create service category           |
-| Admin    | `GET /admin/departments`              | List departments                  |
-| Admin    | `GET /admin/service-categories`       | List categories                   |
+| Admin    | `POST /_/admin/departments`             | Create department                 |
+| Admin    | `POST /_/admin/service-categories`      | Create service category           |
+| Admin    | `GET /_/admin/departments`              | List departments                  |
+| Admin    | `GET /_/admin/service-categories`       | List categories                   |
 
 ---
 

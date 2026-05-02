@@ -1,9 +1,16 @@
 # Kyusa API – Authentication Documentation for Frontend
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Important Notes
@@ -25,7 +32,7 @@ POST /api/auth/signup
 ### Request (JavaScript fetch)
 
 ```javascript
-const response = await fetch("http://127.0.0.1:8001/api/auth/signup", {
+const response = await fetch("{{BASE_URL}}/api/auth/signup", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
@@ -82,7 +89,7 @@ const params = new URLSearchParams();
 params.append("username", "user@example.com"); // email here
 params.append("password", "secure123");
 
-const response = await fetch("http://127.0.0.1:8001/api/auth/login", {
+const response = await fetch("{{BASE_URL}}/api/auth/login", {
   method: "POST",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
   body: params,
@@ -95,7 +102,7 @@ const data = await response.json(); // { access_token, token_type }
 
 ```javascript
 const response = await axios.post(
-  "http://127.0.0.1:8001/api/auth/login",
+  "{{BASE_URL}}/api/auth/login",
   new URLSearchParams({
     username: "user@example.com",
     password: "secure123",
@@ -136,7 +143,7 @@ Send the access token in the `Authorization` header.
 ```javascript
 const accessToken = "..."; // from login response
 
-const response = await fetch("http://127.0.0.1:8001/api/me", {
+const response = await fetch("{{BASE_URL}}/api/me", {
   headers: {
     Authorization: `Bearer ${accessToken}`,
   },
@@ -180,7 +187,7 @@ POST /api/auth/refresh
 ### Request (axios / fetch)
 
 ```javascript
-const response = await fetch("http://127.0.0.1:8001/api/auth/refresh", {
+const response = await fetch("{{BASE_URL}}/api/auth/refresh", {
   method: "POST",
   credentials: "include", // sends the refresh token cookie
 });
@@ -224,7 +231,7 @@ POST /api/auth/logout
 ```javascript
 const accessToken = "...";
 
-await fetch("http://127.0.0.1:8001/api/auth/logout", {
+await fetch("{{BASE_URL}}/api/auth/logout", {
   method: "POST",
   headers: {
     Authorization: `Bearer ${accessToken}`,
@@ -250,7 +257,7 @@ Some endpoints require a specific role (`client`, `provider`, `admin`). If the u
 ### Example: Provider‑only endpoint
 
 ```javascript
-const response = await fetch("http://127.0.0.1:8001/api/provider-only", {
+const response = await fetch("{{BASE_URL}}/api/provider-only", {
   headers: { Authorization: `Bearer ${accessToken}` },
   credentials: "include",
 });
@@ -272,7 +279,7 @@ if (response.status === 403) {
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8001/api",
+  baseURL: "{{BASE_URL}}/api",
   withCredentials: true, // always send cookies
 });
 

@@ -1,5 +1,12 @@
 # Kyusa API – Provider Availability Management
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Weekly Schedule** → Define standard working hours for each day of the week (0=Monday, 6=Sunday).
 2. **Booking Limits** → Set maximum bookings allowed per day to prevent overbooking.
@@ -14,7 +21,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication

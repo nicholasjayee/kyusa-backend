@@ -1,3 +1,10 @@
+
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
 The previous documentation included an endpoint `/api/categories/{category_id}/services` that was never implemented. The correct way to list services under a category is `GET /api/services?category=<category_id>`. We'll update the documentation.
 
 Now, we have completed all core features. I will create a **final summary document** that lists all implemented endpoints grouped by role (client, provider, admin) with a brief description of each. This will serve as a quick reference for the frontend developer. After you approve, we can move to the next feature (e.g., payments).
@@ -9,7 +16,7 @@ Now, we have completed all core features. I will create a **final summary docume
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 All authenticated endpoints require `Authorization: Bearer <access_token>` and `credentials: 'include'`.
@@ -66,12 +73,12 @@ All authenticated endpoints require `Authorization: Bearer <access_token>` and `
 
 | Method      | Endpoint                                       | Description                       |
 | ----------- | ---------------------------------------------- | --------------------------------- |
-| POST        | `/admin/departments`                           | Create a department               |
-| GET         | `/admin/departments`                           | List all departments              |
-| POST        | `/admin/service-categories`                    | Create a service category         |
-| GET         | `/admin/service-categories`                    | List all categories               |
-| GET         | `/admin/providers?status=pending`              | List providers (filter by status) |
-| POST        | `/admin/providers/{id}/approval`               | Approve or reject a provider      |
+| POST        | `/_/admin/departments`                           | Create a department               |
+| GET         | `/_/admin/departments`                           | List all departments              |
+| POST        | `/_/admin/service-categories`                    | Create a service category         |
+| GET         | `/_/admin/service-categories`                    | List all categories               |
+| GET         | `/_/admin/providers?status=pending`              | List providers (filter by status) |
+| POST        | `/_/admin/providers/{id}/approval`               | Approve or reject a provider      |
 | (same auth) | `/auth/login`, `/auth/refresh`, `/auth/logout` | Same as others                    |
 
 ---

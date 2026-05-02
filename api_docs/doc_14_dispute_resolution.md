@@ -1,5 +1,12 @@
 # Kyusa API – Dispute Resolution
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Formal Dispute Opening** → Clients can initiate a dispute for any booking that didn't meet expectations.
 2. **Supportive Evidence** → A dedicated mechanism for uploading documents, images, and notes from both parties.
@@ -14,7 +21,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication
@@ -164,7 +171,7 @@ Authorization: Bearer <token>
 ## 5. Admin Resolves a Dispute
 
 ```http
-POST /admin/disputes/{dispute_id}/resolve
+POST /_/admin/disputes/{dispute_id}/resolve
 Authorization: Bearer <admin_token>
 Content-Type: application/json
 ```

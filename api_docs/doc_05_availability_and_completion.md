@@ -1,5 +1,12 @@
 # Kyusa API – Availability & Booking Completion
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Availability Control** → Providers manage their weekly schedule and one-off exceptions to keep booking windows accurate.
 2. **Service Fulfillment** → Once a provider delivers a service, they must call the `complete` endpoint.
@@ -14,7 +21,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication

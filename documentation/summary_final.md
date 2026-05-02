@@ -1,3 +1,10 @@
+
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
 ## 🚀 Completed Features
 
 ### Core / Authentication
@@ -61,7 +68,7 @@
 | **Public**   | `POST /auth/signup`, `POST /auth/login`, `POST /auth/refresh`, `GET /services`, `GET /services/{id}`, `GET /services/{id}/reviews`, `GET /settings/public`                                                                                                                                                                                                                                                                                                                                                                          |
 | **Client**   | `GET /me`, `POST /client/onboarding`, `POST /bookings`, `GET /bookings`, `POST /bookings/{id}/review`, `POST /favorites/{id}`, `GET /favorites`, `DELETE /favorites/{id}`, `POST /disputes`, `GET /disputes`, `GET /disputes/{id}/evidence`, `POST /disputes/{id}/evidence`                                                                                                                                                                                                                                                         |
 | **Provider** | `POST /provider/onboarding`, `POST /provider/services`, `GET /provider/bookings`, `POST /provider/bookings/{id}/accept`, `POST /provider/bookings/{id}/reject`, `POST /provider/bookings/{id}/complete`, `GET /provider/earnings/summary`, `GET /provider/earnings`, `POST /provider/payouts`, `GET /provider/analytics/dashboard`, `GET /provider/availability`, `POST /provider/availability`, `POST /provider/availability/exceptions`, `GET /provider/availability/exceptions`, `DELETE /provider/availability/exceptions/{id}` |
-| **Admin**    | `GET /admin/departments`, `POST /admin/departments`, `GET /admin/service-categories`, `POST /admin/service-categories`, `GET /admin/providers`, `POST /admin/providers/{id}/approval`, `POST /admin/earnings/{id}/release`, `GET /admin/settings`, `POST /admin/settings/{key}`, `POST /admin/disputes/{id}/resolve`                                                                                                                                                                                                                |
+| **Admin**    | `GET /_/admin/departments`, `POST /_/admin/departments`, `GET /_/admin/service-categories`, `POST /_/admin/service-categories`, `GET /_/admin/providers`, `POST /_/admin/providers/{id}/approval`, `POST /_/admin/earnings/{id}/release`, `GET /_/admin/settings`, `POST /_/admin/settings/{key}`, `POST /_/admin/disputes/{id}/resolve`                                                                                                                                                                                                                |
 | **Auth**     | `POST /auth/logout` (protected)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 ---

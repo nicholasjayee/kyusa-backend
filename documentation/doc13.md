@@ -1,9 +1,16 @@
 # Kyusa API – System Settings
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication
@@ -38,7 +45,7 @@ If no public settings exist, returns `{}`.
 ## 2. List All Settings (Admin only)
 
 ```http
-GET /admin/settings
+GET /_/admin/settings
 Authorization: Bearer <admin_token>
 ```
 
@@ -65,7 +72,7 @@ Returns all settings (including non‑public) with full metadata.
 ## 3. Create or Update a Setting (Admin only)
 
 ```http
-POST /admin/settings/{key}
+POST /_/admin/settings/{key}
 Authorization: Bearer <admin_token>
 Content-Type: application/json
 ```

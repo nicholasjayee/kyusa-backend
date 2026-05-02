@@ -1,5 +1,12 @@
 # Kyusa API – Documentation Index
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **General Overview** ([doc_01](doc_01_general_overview.md)) → High-level system flow and core concepts.
 2. **Client Flow** ([doc_02](doc_02_client_documentation.md)) → Detailed guide for client registration, onboarding, and booking.
@@ -20,6 +27,6 @@
 ---
 
 ## Getting Started
-- **Base URL:** `http://127.0.0.1:8001/api`
+- **Base URL:** `{{BASE_URL}}/api`
 - **Auth Strategy:** Bearer tokens for access, HttpOnly cookies for refresh.
 - **Frontend Prerequisite:** Ensure `credentials: 'include'` or `withCredentials: true` is set in your API client.

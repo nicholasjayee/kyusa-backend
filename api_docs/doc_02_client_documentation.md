@@ -1,5 +1,12 @@
 # Kyusa API – Client Documentation
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Account Creation** → Signup as a `client` to start using the platform.
 2. **Authentication** → Login to receive an `access_token`; `refresh_token` is handled via cookies.
@@ -15,7 +22,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication
@@ -358,7 +365,7 @@ Authorization: Bearer <access_token>
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8001/api',
+  baseURL: '{{BASE_URL}}/api',
   withCredentials: true,   // sends cookies
 });
 

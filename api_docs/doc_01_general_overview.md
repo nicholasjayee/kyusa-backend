@@ -1,8 +1,17 @@
 # Kyusa API – General Overview
 
+> **Environment Information**
+>
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
+
 1. **User Authentication** → Signup/Login to obtain an `access_token` and an `httpOnly` refresh token cookie.
-2. **Onboarding & Profiles** → Create a profile as a `client` or `provider`. 
+2. **Onboarding & Profiles** → Create a profile as a `client` or `provider`.
 3. **Provider Approval** → Providers require manual admin approval before they can offer services.
 4. **Service Management** → Approved providers create and manage services within defined categories.
 5. **Booking Lifecycle** → Client initiates a booking → Provider accepts or rejects → Service delivery → Completion.
@@ -15,7 +24,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication
@@ -345,7 +354,7 @@ Same login endpoint. Admin must have `is_superuser=True` (created via `createsup
 ### 3.2 Create a department
 
 ```http
-POST /admin/departments
+POST /_/admin/departments
 ```
 
 ```json
@@ -370,7 +379,7 @@ POST /admin/departments
 ### 3.3 Create a service category
 
 ```http
-POST /admin/service-categories
+POST /_/admin/service-categories
 ```
 
 ```json

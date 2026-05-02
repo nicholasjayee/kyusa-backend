@@ -1,9 +1,16 @@
 # Kyusa API – Frontend Documentation
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication
@@ -333,7 +340,7 @@ Same login endpoint. Admin must have `is_superuser=True` (created via `createsup
 ### 3.2 Create a department
 
 ```http
-POST /admin/departments
+POST /_/admin/departments
 ```
 
 ```json
@@ -358,7 +365,7 @@ POST /admin/departments
 ### 3.3 Create a service category
 
 ```http
-POST /admin/service-categories
+POST /_/admin/service-categories
 ```
 
 ```json

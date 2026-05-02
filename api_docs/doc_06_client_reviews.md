@@ -1,5 +1,12 @@
 # Kyusa API – Client Reviews
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Quality Feedback** → Clients submit a star rating (1-5) and optional text comment after a service is completed.
 2. **Reputation Management** → Provider profile metrics (`rating_avg`, `total_reviews`) are updated in real-time.
@@ -14,7 +21,7 @@
 ## Base URL
 
 ```
-http://127.0.0.1:8001/api
+{{BASE_URL}}/api
 ```
 
 ## Authentication

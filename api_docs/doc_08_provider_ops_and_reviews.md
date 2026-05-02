@@ -1,5 +1,12 @@
 # Kyusa API – Provider Operations & Reviews
 
+> **Environment Information**
+> - **Base URL (Local):** `http://localhost:8000`
+> - **Base URL (Production):** `https://kyusa-backend.onrender.com`
+> - **Django Admin:** `{{BASE_URL}}/_/admin`
+
+---
+
 ## Overview
 1. **Schedule Management** → Comprehensive endpoints for providers to maintain accurate availability windows.
 2. **Post-Service Workflow** → Standardized process for marking bookings as complete and triggering earnings records.
@@ -182,7 +189,7 @@ GET /services/{service_id}/reviews
 ### List Providers (filter by status)
 
 ```http
-GET /admin/providers?status=pending
+GET /_/admin/providers?status=pending
 Authorization: Bearer <admin_token>
 ```
 
@@ -211,7 +218,7 @@ Authorization: Bearer <admin_token>
 ### Approve / Reject a Provider
 
 ```http
-POST /admin/providers/{provider_id}/approval
+POST /_/admin/providers/{provider_id}/approval
 Authorization: Bearer <admin_token>
 Content-Type: application/json
 ```
