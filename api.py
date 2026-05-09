@@ -569,6 +569,7 @@ class BookingCreate(BaseModel):
     start_time: Optional[time] = None
     end_time: Optional[time] = None
     special_requests: Optional[str] = None
+    metadata: Optional[dict] = None
 
 @app.post("/api/bookings")
 async def create_booking(booking_data: BookingCreate, current_user: User = Depends(get_current_user)):
@@ -586,6 +587,7 @@ async def create_booking(booking_data: BookingCreate, current_user: User = Depen
         raise HTTPException(status_code=404, detail="Service not found")
     
     total_amount = service.base_price
+    metadata_val = booking_data.metadata if booking_data.metadata is not None else {}
     
     @sync_to_async
     def create():
@@ -600,6 +602,7 @@ async def create_booking(booking_data: BookingCreate, current_user: User = Depen
             special_requests=booking_data.special_requests,
             total_amount=total_amount,
             commission_amount=0,
+            metadata=metadata_val,
         )
     booking = await create()
     # Send email to provider

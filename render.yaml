@@ -15,9 +15,9 @@ services:
       - key: ALLOWED_HOSTS
         value: kyusa-backend.onrender.com
       - key: ALLOWED_ORIGINS
-        value: https://kyusa-backend.onrender.com
+        value: https://kyusa-backend.onrender.com,https://kyusa.vercel.app
       - key: CSRF_TRUSTED_ORIGINS
-        value: https://kyusa-backend.onrender.com
+        value: https://kyusa-backend.onrender.com,https://kyusa.vercel.app
       - key: SECRET_KEY
         generateValue: true
       - key: JWT_SECRET_KEY

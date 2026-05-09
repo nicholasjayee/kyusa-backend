@@ -216,6 +216,7 @@ class Booking(models.Model):
     end_time = models.TimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     special_requests = models.TextField(null=True, blank=True)
+    metadata = models.JSONField(default=dict, blank=True, null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     provider_notes = models.TextField(null=True, blank=True)
