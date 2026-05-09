@@ -1500,9 +1500,3 @@ async def resolve_dispute(
         "message": f"Dispute resolved as {data.status}"
     }
 
-   return {
-        "id": dispute.id,
-        "status": dispute.status,
-        "message": f"Dispute resolved as {data.status}"
-    }
-
