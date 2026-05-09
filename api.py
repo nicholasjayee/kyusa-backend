@@ -336,8 +336,6 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
         httponly=True,
         secure=COOKIE_SECURE,
         samesite=COOKIE_SAMESITE,
-    )
-
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         path="/",
     )
