@@ -248,7 +248,10 @@ if os.path.exists("staticfiles"):
 django_app = get_asgi_application()
 app.mount("/_/admin", django_app)
 
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:8000").split(",")
+# CORS setup
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173,http://127.0.0.1:8000").split(",")
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "False").lower() == "true"
+COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax")
 
 app.add_middleware(
     CORSMiddleware,
@@ -327,13 +330,14 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
     
     access_token = create_access_token(data={"sub": str(user.id)})
     refresh_token = create_refresh_token(data={"sub": str(user.id)})
-    
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
+    )
+
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         path="/",
     )
@@ -360,8 +364,8 @@ async def refresh_token(response: Response, refresh_token: Optional[str] = Cooki
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         path="/"
     )
