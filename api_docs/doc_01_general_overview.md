@@ -21,9 +21,9 @@
 
 ## Authentication & Headers
 
--   **Access Token:** Send in `Authorization: Bearer <access_token>` header.
--   **Refresh Token:** Automatically stored in an **httpOnly cookie**. No JavaScript access.
--   **Pro Tip:** All requests involving authentication (login, logout, refresh, or any protected route) **MUST** include `withCredentials: true` (in Axios/Fetch) to ensure the refresh token cookie is sent and received.
+- **Access Token:** Send in `Authorization: Bearer <access_token>` header.
+- **Refresh Token:** Automatically stored in an **httpOnly cookie**. No JavaScript access.
+- **Pro Tip:** All requests involving authentication (login, logout, refresh, or any protected route) **MUST** include `withCredentials: true` (in Axios/Fetch) to ensure the refresh token cookie is sent and received.
 
 ---
 
@@ -37,6 +37,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "provider@example.com",
@@ -49,6 +50,7 @@ Content-Type: application/json
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "id": "uuid-string",
@@ -74,13 +76,15 @@ Content-Type: application/x-www-form-urlencoded
 `username=provider@example.com&password=secret`
 
 **Success Response (200):**
+
 ```json
 {
   "access_token": "eyJ...",
   "token_type": "bearer"
 }
 ```
-*Note: A `refresh_token` cookie is set automatically.*
+
+_Note: A `refresh_token` cookie is set automatically._
 
 ---
 
@@ -94,6 +98,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "business_name": "Clean Masters",
@@ -106,6 +111,7 @@ Content-Type: application/json
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "id": "uuid-string",
@@ -114,6 +120,7 @@ Content-Type: application/json
   "message": "Provider profile created, pending approval"
 }
 ```
+
 ⚠️ **Pro Tip:** Providers **cannot** create services until an admin approves the profile.
 
 ---
@@ -126,6 +133,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "category_id": "category-uuid",
@@ -139,6 +147,7 @@ Content-Type: application/json
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "id": "service-uuid",
@@ -159,6 +168,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "phone_number": "+256700111222",
@@ -171,6 +181,7 @@ Content-Type: application/json
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "id": "uuid-string",
@@ -190,6 +201,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "service_id": "service-uuid",
@@ -201,6 +213,7 @@ Content-Type: application/json
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "id": "booking-uuid",
@@ -213,9 +226,9 @@ Content-Type: application/json
 
 ## Common Error Responses
 
-| Status Code | Meaning | Example Body |
-| :--- | :--- | :--- |
-| **401** | Unauthorized | `{"detail": "Not authenticated"}` |
-| **403** | Forbidden | `{"detail": "Insufficient permissions"}` |
-| **404** | Not Found | `{"detail": "Service not found"}` |
-| **400** | Bad Request | `{"detail": "Email already registered"}` |
+| Status Code | Meaning      | Example Body                             |
+| :---------- | :----------- | :--------------------------------------- |
+| **401**     | Unauthorized | `{"detail": "Not authenticated"}`        |
+| **403**     | Forbidden    | `{"detail": "Insufficient permissions"}` |
+| **404**     | Not Found    | `{"detail": "Service not found"}`        |
+| **400**     | Bad Request  | `{"detail": "Email already registered"}` |

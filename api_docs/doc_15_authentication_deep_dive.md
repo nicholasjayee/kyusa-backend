@@ -112,12 +112,13 @@ POST {{BASE_URL}}/api/auth/login
 
 ### Set-Cookie Header (Browser automatically handles this)
 
-The server sends a `Set-Cookie` header with the following attributes:
+The server sends a `Set-Cookie` header with the following attributes (configurable via environment variables):
 
 - **Name:** `refresh_token`
 - **HttpOnly:** `true` (Cannot be accessed by JavaScript).
 - **Path:** `/`
-- **SameSite:** `Lax` (Protects against CSRF while allowing common usage).
+- **Secure:** `true` (In production, requires HTTPS) or `false` (In development).
+- **SameSite:** `Lax` (Default) or `None` (Required for cross-site cookies, e.g., Vercel to Render).
 - **Max-Age:** 7 Days (Configurable in backend).
 
 ### Handling Tokens on the Frontend
@@ -203,7 +204,7 @@ const newAccessToken = data.access_token;
 ### Error (401)
 
 ```json
-{ "detail": "Refresh token missing" }
+{ "detail": "Refresh token cookie missing or expired" }
 { "detail": "Invalid refresh token" }
 { "detail": "Refresh token revoked or expired" }
 ```
