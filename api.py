@@ -447,7 +447,7 @@ async def service_detail(service_id: str):
             "id": service.id,
             "name": service.name,
             "description": service.description,
-            "base_price": service.base_price,
+            "base_price": float(service.base_price) if service.base_price else 0,
             "duration_minutes": service.duration_minutes,
             "requires_prepayment": service.requires_prepayment,
             "cancellation_policy_hours": service.cancellation_policy_hours,
@@ -1495,6 +1495,12 @@ async def resolve_dispute(
         return dispute
     dispute = await update()
     return {
+        "id": dispute.id,
+        "status": dispute.status,
+        "message": f"Dispute resolved as {data.status}"
+    }
+
+   return {
         "id": dispute.id,
         "status": dispute.status,
         "message": f"Dispute resolved as {data.status}"
