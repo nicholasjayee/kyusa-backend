@@ -342,7 +342,10 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
 @app.post("/api/auth/refresh")
 async def refresh_token(response: Response, refresh_token: Optional[str] = Cookie(None)):
     if not refresh_token:
-        raise HTTPException(status_code=401, detail="Refresh token missing")
+        # For debugging, we can log this or provide a slightly more descriptive error
+        # but the user requested to see the "actual error from the api"
+        # Since 'refresh_token' being None IS the error here, we'll keep the 401 but maybe clarify it's from the Cookie.
+        raise HTTPException(status_code=401, detail="Refresh token cookie missing or expired")
     payload = decode_token(refresh_token)
     if payload is None or payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
