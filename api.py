@@ -17,7 +17,7 @@ from pydantic import BaseModel, EmailStr, validator
 from typing import List, Optional,Any
 
 from django.contrib.auth.hashers import check_password
-from django.db import transaction
+from django.db import transaction, close_old_connections
 from django.db.models import Q
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
@@ -158,6 +158,7 @@ class DisputeResolve(BaseModel):
 # Helper functions (sync_to_async wrapped)
 @sync_to_async
 def get_user_by_email(email: str):
+    close_old_connections()
     try:
         return User.objects.get(email=email)
     except User.DoesNotExist:
@@ -165,6 +166,7 @@ def get_user_by_email(email: str):
 
 @sync_to_async
 def get_user_by_id(user_id: str):
+    close_old_connections()
     try:
         return User.objects.get(id=user_id, is_active=True)
     except User.DoesNotExist:
@@ -172,6 +174,7 @@ def get_user_by_id(user_id: str):
 
 @sync_to_async
 def create_user(email: str, username: str, password: str, first_name: str, last_name: str, role: str):
+    close_old_connections()
     return User.objects.create_user(
         username=username,
         email=email,
@@ -183,6 +186,7 @@ def create_user(email: str, username: str, password: str, first_name: str, last_
     )
 
 def _authenticate_user_sync(email: str, password: str):
+    close_old_connections()
     try:
         user = User.objects.get(email=email)
         if check_password(password, user.password):
@@ -195,6 +199,7 @@ authenticate_user = sync_to_async(_authenticate_user_sync)
 
 @sync_to_async
 def check_username_exists(username: str):
+    close_old_connections()
     return User.objects.filter(username=username).exists()
 
 # JWT token creation (sync, fine)
