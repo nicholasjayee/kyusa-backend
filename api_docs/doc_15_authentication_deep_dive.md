@@ -206,7 +206,9 @@ const newAccessToken = data.access_token;
 ```json
 { "detail": "Refresh token cookie missing or expired" }
 { "detail": "Invalid refresh token" }
-{ "detail": "Refresh token revoked or expired" }
+{ "detail": "Refresh token not found or already used" }
+{ "detail": "Refresh token expired" }
+{ "detail": "User account is inactive" }
 ```
 
 ---

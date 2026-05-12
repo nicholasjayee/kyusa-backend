@@ -8,6 +8,7 @@ uv run python manage.py collectstatic --noinput
 uv run python manage.py startapp core
 ➜ kyusa git:(master) ✗ openssl rand -hex 32
 
+uv run python -m uvicorn api:app --reload --port 8000
 uv run uvicorn api:app --reload --port 8001
 uv run python manage.py runserver
 

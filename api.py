@@ -17,6 +17,7 @@ from pydantic import BaseModel, EmailStr, validator
 from typing import List, Optional,Any
 
 from django.contrib.auth.hashers import check_password
+from django.db import transaction
 from django.db.models import Q
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
@@ -329,10 +330,23 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     
     access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    refresh_token_jwt = create_refresh_token(data={"sub": str(user.id)})
+    
+    # Save token to database for stateful tracking
+    @sync_to_async
+    def save_token():
+        expires_at = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        return RefreshToken.objects.create(
+            user=user,
+            token=refresh_token_jwt,
+            expires_at=expires_at
+        )
+    
+    await save_token()
+
     response.set_cookie(
         key="refresh_token",
-        value=refresh_token,
+        value=refresh_token_jwt,
         httponly=True,
         secure=COOKIE_SECURE,
         samesite=COOKIE_SAMESITE,
@@ -344,23 +358,59 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
 @app.post("/api/auth/refresh")
 async def refresh_token(response: Response, refresh_token: Optional[str] = Cookie(None)):
     if not refresh_token:
-        # For debugging, we can log this or provide a slightly more descriptive error
-        # but the user requested to see the "actual error from the api"
-        # Since 'refresh_token' being None IS the error here, we'll keep the 401 but maybe clarify it's from the Cookie.
         raise HTTPException(status_code=401, detail="Refresh token cookie missing or expired")
+    
     payload = decode_token(refresh_token)
     if payload is None or payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
-    user_id = payload.get("sub")
-    user = await get_user_by_id(user_id) if user_id else None
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
     
+    user_id = payload.get("sub")
+    
+    # Verify token in database with atomic rotation
+    @sync_to_async
+    def verify_and_rotate_token():
+        try:
+            with transaction.atomic():
+                # select_for_update() prevents race conditions by locking the row
+                token_obj = RefreshToken.objects.select_for_update().get(token=refresh_token)
+                
+                # Double check expiration in DB
+                if token_obj.expires_at < datetime.now(timezone.utc):
+                    token_obj.delete()
+                    return None, "Refresh token expired"
+                
+                user = token_obj.user
+                if not user.is_active:
+                    return None, "User account is inactive"
+
+                # Rotate: Delete old token immediately so it can't be reused
+                token_obj.delete()
+                
+                # Generate new pair
+                new_jwt = create_refresh_token(data={"sub": str(user.id)})
+                expires_at = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+                
+                RefreshToken.objects.create(
+                    user=user,
+                    token=new_jwt,
+                    expires_at=expires_at
+                )
+                return (user, new_jwt), None
+        except RefreshToken.DoesNotExist:
+            return None, "Refresh token not found or already used"
+        except Exception as e:
+            return None, f"Database error: {str(e)}"
+
+    result, error_msg = await verify_and_rotate_token()
+    if not result:
+        raise HTTPException(status_code=401, detail=error_msg)
+    
+    user, new_refresh_token_jwt = result
     new_access_token = create_access_token(data={"sub": str(user.id)})
-    new_refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    
     response.set_cookie(
         key="refresh_token",
-        value=new_refresh_token,
+        value=new_refresh_token_jwt,
         httponly=True,
         secure=COOKIE_SECURE,
         samesite=COOKIE_SAMESITE,
@@ -370,7 +420,13 @@ async def refresh_token(response: Response, refresh_token: Optional[str] = Cooki
     return {"access_token": new_access_token, "token_type": "bearer"}
 
 @app.post("/api/auth/logout")
-async def logout(response: Response, current_user: User = Depends(get_current_user)):
+async def logout(response: Response, refresh_token: Optional[str] = Cookie(None), current_user: User = Depends(get_current_user)):
+    if refresh_token:
+        @sync_to_async
+        def delete_token():
+            RefreshToken.objects.filter(token=refresh_token).delete()
+        await delete_token()
+        
     response.delete_cookie("refresh_token", path="/")
     return {"message": "Logged out"}
 
