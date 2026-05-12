@@ -246,6 +246,20 @@ from fastapi.staticfiles import StaticFiles
 # FastAPI app
 app = FastAPI(title="Kyusa API", version="1.0")
 
+# Middleware to handle Django database connections
+@app.middleware("http")
+async def db_session_middleware(request, call_next):
+    # Close old connections before the request
+    # This prevents "connection already closed" errors from idle timeouts
+    from django.db import close_old_connections
+    close_old_connections()
+    try:
+        response = await call_next(request)
+    finally:
+        # Close connections again after the request
+        close_old_connections()
+    return response
+
 # Mount Static Files (Served directly by FastAPI for efficiency)
 if os.path.exists("staticfiles"):
     app.mount("/static", StaticFiles(directory="staticfiles"), name="static")
